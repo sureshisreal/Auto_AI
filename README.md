@@ -79,11 +79,12 @@ flowchart TD
 | `tests/e2e/` | End-to-end user flows |
 | `tests/visual/` | Visual regression tests |
 | `tests/fixtures/` | Dependency-injected test fixtures |
-| `reports/` | Generated test reports (gitignored) |
-| `screenshots/` | Screenshots on failure (gitignored) |
-| `videos/` | Videos on failure (gitignored) |
-| `traces/` | Playwright traces on failure (gitignored) |
-| `logs/` | Winston logs (gitignored) |
+| `reports/` | All generated output lives here (gitignored) |
+| `reports/allure-results/`, `reports/allure-report/` | Raw Allure results / generated static site |
+| `reports/test-results/` | Playwright's own per-test artifacts (screenshots/videos/traces on failure, `.last-run.json`) |
+| `reports/screenshots/` | Ad-hoc named screenshots + auto-capture on test failure |
+| `reports/videos/` | Reserved for video output |
+| `reports/logs/` | Winston app/error logs and Playwright traces, combined in one folder |
 
 ---
 
@@ -299,7 +300,7 @@ Components are reusable UI patterns across pages!
 | Allure | Generate: `npm run allure:generate`, Open: `npm run allure:open`, Serve: `npm run allure:serve` |
 | JUnit | `reports/junit.xml` |
 | JSON | `reports/test-results.json` |
-| Logs | `logs/app-<date>.log` (info+) and `logs/error.log` (errors only) |
+| Logs | `reports/logs/app-<date>.log` (info+) and `reports/logs/error.log` (errors only) - same folder as Playwright traces |
 
 ---
 
@@ -318,7 +319,7 @@ Components are reusable UI patterns across pages!
 ## CI/CD
 - **PR Checks**: `.github/workflows/pr-checks.yml` - runs lint + sanity tests on every PR
 - **Regression**: `.github/workflows/regression.yml` - scheduled full regression runs
-- **Artifacts**: Reports, screenshots, videos, traces are uploaded as artifacts on failure
+- **Artifacts**: the whole `reports/` folder (results, HTML/Allure/JUnit output, screenshots, videos, logs+traces) is uploaded as a single artifact
 
 ---
 

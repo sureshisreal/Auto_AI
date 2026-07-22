@@ -1,6 +1,5 @@
 node_modules/
 dist/
-test-results/
 playwright-report/
 playwright/.cache/
 *.log
@@ -16,10 +15,6 @@ coverage/
 junit.xml
 test-results.json
 /reports/
-/screenshots/
-/videos/
-/traces/
-/logs/
 /downloads/
 allure-results/
 allure-report/

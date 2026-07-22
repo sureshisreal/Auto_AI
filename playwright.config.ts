@@ -4,6 +4,7 @@ import Config from './src/config/Config';
 
 export default defineConfig({
   testDir: './tests',
+  outputDir: './reports/test-results',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : Config.retries,
@@ -14,7 +15,7 @@ export default defineConfig({
     ['html', { outputFolder: 'reports/html', open: 'never' }],
     ['junit', { outputFile: 'reports/junit.xml' }],
     ['json', { outputFile: 'reports/test-results.json' }],
-    ['allure-playwright', { outputFolder: 'reports/allure-results' }],
+    ['allure-playwright', { resultsDir: 'reports/allure-results' }],
     ['./src/listeners/CustomReporter.ts']
   ],
   use: {

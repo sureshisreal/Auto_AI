@@ -11,7 +11,7 @@ import * as path from 'path';
  * automatically (Environment tab: Browser, Environment, Retries, Base URL).
  */
 export default async function globalSetup(config: FullConfig): Promise<void> {
-  [FilePaths.REPORTS, FilePaths.SCREENSHOTS, FilePaths.VIDEOS, FilePaths.TRACES, FilePaths.LOGS, FilePaths.DOWNLOADS].forEach(
+  [FilePaths.REPORTS, FilePaths.SCREENSHOTS, FilePaths.VIDEOS, FilePaths.LOGS, FilePaths.DOWNLOADS].forEach(
     (dir) => {
       if (!FileUtils.fileExists(dir)) {
         FileUtils.writeFile(path.join(dir, '.gitkeep'), '');
