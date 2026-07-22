@@ -2,21 +2,24 @@
 
 ## Agent Capabilities
 
-| Task                     | Healer | Planner | Generator | API Testing | Manual Testing | Code Reviewer |
+| Task                     | Healer | Planner | Generator | API Testing | Manual Testing | Review Skill* |
 |--------------------------|--------|---------|-----------|-------------|----------------|---------------|
 | Debug failing tests      | ✅     | ❌      | ❌        | ❌          | ❌             | ❌            |
 | Create test plans        | ❌     | ✅      | ❌        | ❌          | ❌             | ❌            |
 | Write test specs         | ❌     | ❌      | ✅        | ❌          | ❌             | ❌            |
 | Scaffold API tests       | ❌     | ❌      | ❌        | ✅          | ❌             | ❌            |
 | Generate manual checklists | ❌   | ❌      | ❌        | ❌          | ✅             | ❌            |
-| Review test code         | ✅*    | ❌      | ❌        | ❌          | ❌             | ✅            |
+| Review test code         | ✅†    | ❌      | ❌        | ❌          | ❌             | ✅            |
 | Suggest fixes            | ✅     | ❌      | ❌        | ❌          | ❌             | ✅            |
-| Apply fixes              | ✅     | ❌      | ❌        | ❌          | ❌             | ✅*           |
+| Apply fixes              | ✅     | ❌      | ❌        | ❌          | ❌             | ✅†           |
 | Cross-browser testing    | ✅     | ✅      | ✅        | ❌          | ❌             | ❌            |
 | Performance analysis     | ❌     | ✅      | ✅        | ❌          | ✅             | ❌            |
 | Accessibility audit      | ❌     | ✅      | ✅        | ❌          | ✅             | ✅            |
 
-* Can review and optionally fix with explicit user permission
+\* The first five columns are chatmodes (switch into them via dropdown or `@mention`). "Review Skill" is
+`.github/skills/code-review/SKILL.md` - it auto-loads on a review request rather than being switched into;
+there is no separate "Code Reviewer" chatmode in this repo.
+† Can review and optionally fix with explicit user permission
 
 ---
 

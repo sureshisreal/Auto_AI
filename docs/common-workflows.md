@@ -21,9 +21,9 @@ Your team built a new CV Upload feature. You need to create comprehensive tests 
    ```
    → Outputs: `tests/integration-tests/cv-upload.spec.ts` + Page Object + Test Data
 
-3. **Review generated code (use Code Reviewer)**  
+3. **Review generated code (code-review skill auto-loads)**  
    ```
-   @code-reviewer Review tests/integration-tests/cv-upload.spec.ts for POM compliance and coverage
+   Review tests/integration-tests/cv-upload.spec.ts for POM compliance and coverage
    ```
    → Outputs: Review report with suggestions (usually minimal for generated code)
 
@@ -38,9 +38,9 @@ Your team built a new CV Upload feature. You need to create comprehensive tests 
    ```
    → Outputs: `tests/unit-tests/api.spec.ts` + Contract tests
 
-6. **Final review (use Code Reviewer again)**  
+6. **Final review (code-review skill again)**  
    ```
-   @code-reviewer Audit tests/integration-tests/cv-upload.spec.ts and tests/unit-tests/api.spec.ts before shipping
+   Audit tests/integration-tests/cv-upload.spec.ts and tests/unit-tests/api.spec.ts before shipping
    ```
 
 ### Timeline
@@ -76,7 +76,7 @@ Your tests were passing locally, but CI broke them after a deployment. You need 
 
 4. **Commit & push**  
    ```bash
-   git add tests/pages/WeSendCVPage.ts
+   git add src/pages/WeSendCVPage.ts
    git commit -m "Fix: Update CV upload selector for new DOM structure"
    git push
    ```
@@ -91,9 +91,9 @@ Your tests were passing locally, but CI broke them after a deployment. You need 
 Code review feedback: "Your tests only cover the happy path. Add edge cases and error scenarios."
 
 ### Steps
-1. **Get code review feedback (use Code Reviewer)**  
+1. **Get code review feedback (code-review skill)**  
    ```
-   @code-reviewer Check tests/integration-tests/cv-upload.spec.ts for coverage gaps
+   Check tests/integration-tests/cv-upload.spec.ts for coverage gaps
    ```
    → Reports: "Missing 4 edge case tests: invalid file type, file too large, network timeout, server error"
 
@@ -109,9 +109,9 @@ Code review feedback: "Your tests only cover the happy path. Add edge cases and 
    ```
    → Appends new test cases to existing spec file
 
-4. **Review coverage again (use Code Reviewer)**  
+4. **Review coverage again (code-review skill)**  
    ```
-   @code-reviewer Review tests/integration-tests/cv-upload.spec.ts - is coverage now complete?
+   Review tests/integration-tests/cv-upload.spec.ts - is coverage now complete?
    ```
    → Reports: "✅ Good coverage. Happy path + 5 edge cases + 2 error scenarios"
 
@@ -130,9 +130,9 @@ Code review feedback: "Your tests only cover the happy path. Add edge cases and 
 You're shipping to production. Ensure your tests cover security and accessibility requirements.
 
 ### Steps
-1. **Get security review (use Code Reviewer)**  
+1. **Get security review (code-review skill)**  
    ```
-   @code-reviewer Review tests/security-tests/ and tests/authentication/ - are we covering OWASP Top 10?
+   Review tests/security-tests/ and tests/authentication/ - are we covering OWASP Top 10?
    ```
    → Reports: "Missing tests for: CSRF protection, XSS payloads, SQL injection attempt, API rate limiting"
 
@@ -146,9 +146,9 @@ You're shipping to production. Ensure your tests cover security and accessibilit
    ```
    → Outputs: Enhanced `tests/security-tests/` with new attack scenarios
 
-3. **Get accessibility review (use Code Reviewer)**  
+3. **Get accessibility review (code-review skill)**  
    ```
-   @code-reviewer Do our tests cover WCAG 2.1 Level AA accessibility? Check tests/accessibility/
+   Do our tests cover WCAG 2.1 Level AA accessibility? Check tests/accessibility/
    ```
    → Reports: "Missing: Color contrast verification, focus management in modals, ARIA label validation"
 
@@ -162,9 +162,9 @@ You're shipping to production. Ensure your tests cover security and accessibilit
    npx playwright test tests/security-tests/ tests/accessibility/
    ```
 
-6. **Final audit (use Code Reviewer)**  
+6. **Final audit (code-review skill)**  
    ```
-   @code-reviewer Perform final audit of all tests before production release - check coverage, security, a11y
+   Perform final audit of all tests before production release - check coverage, security, a11y
    ```
 
 ### Timeline
@@ -179,7 +179,7 @@ You need to hand off testing to a QA team that prefers manual checklists for exp
 ### Steps
 1. **Generate manual checklist (use Manual Testing Chatmode)**  
    ```
-   @manualtesting Create a comprehensive manual test checklist for `https://wesendcv.com`
+   @manual-testing Create a comprehensive manual test checklist for `https://wesendcv.com`
    ```
    → Outputs: Detailed checklist with:
      - Page sections to test
@@ -198,7 +198,7 @@ You need to hand off testing to a QA team that prefers manual checklists for exp
 
 4. **Combine with automated tests**
    ```
-   @manualtesting Create a manual regression checklist that complements our automated test suite
+   @manual-testing Create a manual regression checklist that complements our automated test suite
    ```
    → Focuses on exploratory testing, UX validation, and edge cases that automation may miss
 
@@ -212,19 +212,19 @@ You need to hand off testing to a QA team that prefers manual checklists for exp
 You have 5 test files that need refactoring for POM compliance. You want to fix them all at once.
 
 ### Steps
-1. **Audit all test files**  
+1. **Audit all test files (code-review skill)**  
    ```
-   @code-reviewer Audit all test files in tests/integration-tests/ and tests/security-tests/ for POM compliance and best practices
+   Audit all test files in tests/integration-tests/ and tests/security-tests/ for POM compliance and best practices
    ```
    → Reports: Aggregated review of all files with priorities
 
 2. **Ask Healer to apply fixes**  
    ```
-   @code-reviewer You identified these issues [paste list]. Can you fix them across all files?
+   @healer You identified these issues [paste list]. Can you fix them across all files?
    ```
    → **Healer applies fixes**:
-     - Moves inline selectors to Page Objects
-     - Extracts hardcoded test data to `tests/data/`
+     - Moves inline selectors to Page Objects (`src/pages/`)
+     - Extracts hardcoded test data to `src/core/data/testdata/`
      - Replaces anti-patterns
      - Reruns all tests to verify
 
@@ -281,17 +281,17 @@ Your team has multiple APIs. You need to ensure frontend tests will work with ba
 ---
 
 ## Using Agents with the MCP Flow
-For fully programmatic agent usage (no VS Code UI), start the Playwright MCP server and send chatmode prompts via API:
+For fully programmatic agent usage (no VS Code UI), this repo ships its own MCP server at
+`mcp/mcp-server.ts` (stdio transport, built on `@modelcontextprotocol/sdk`):
 ```bash
-# Start MCP server
-npx playwright run-test-mcp-server
-
-# Or add as an npm script
-npm set-script mcp:start "npx playwright run-test-mcp-server"
-npm run mcp:start
+npm run mcp:server
 ```
-
-The `.vscode/mcp.json` file pre-configures the MCP entrypoint for VS Code's agent runtime.
+This is meant to be launched *by* an MCP client (Claude Desktop, Claude Code, VS Code's MCP support),
+not run standalone in a terminal. It exposes three tools an agent can call directly instead of shelling
+out to `npx playwright test`: `run_playwright_test` (single file, optional `project`/`headed`),
+`run_all_tests`, and `get_test_report`. Point the client's MCP config at
+`{ "command": "npx", "args": ["tsx", "mcp/mcp-server.ts"], "cwd": "<repo path>" }` - see the README's
+[MCP Server](../README.md#mcp-server-ai-agent-tool-access) section for the full config example.
 
 ---
 
@@ -299,7 +299,7 @@ The `.vscode/mcp.json` file pre-configures the MCP entrypoint for VS Code's agen
 | Feature | Purpose | Location | When to Use |
 |---------|---------|----------|-------------|
 | Agent Skills | Contextual instructions auto-loaded when relevant | `.github/skills/` | Complex workflows, debugging guides, repo-specific patterns |
-| Chatmodes | Role-based agent personas with dedicated toolsets | `.github/chatmodes/` | Healer, Planner, Generator, API, Manual, Code Reviewer — explicit invocation |
+| Chatmodes | Role-based agent personas with dedicated toolsets | `.github/chatmodes/` | Healer, Planner, Generator, API Testing, Manual Testing — explicit invocation (dropdown or `@mention`) |
 | Custom Instructions | Global rules applied to every Copilot interaction | `.github/copilot-instructions.md` | Coding standards, architecture rules, project conventions |
 
 ### Skills registered in this repo
