@@ -21,4 +21,6 @@ test-results.json
 /traces/
 /logs/
 /downloads/
+allure-results/
+allure-report/
 src/testdata/storage-state/
