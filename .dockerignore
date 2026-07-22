@@ -1,0 +1,15 @@
+node_modules
+dist
+test-results
+playwright-report
+playwright/.cache
+*.log
+.DS_Store
+.env
+.env.local
+.idea
+.vscode
+artifacts
+coverage
+junit.xml
+test-results.json
