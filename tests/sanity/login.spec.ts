@@ -1,5 +1,5 @@
-import { test, expect } from '../../src/fixtures/fixtures';
-import { UserBuilder } from '../../src/builders/UserBuilder';
+import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
+import { UserBuilder } from '../../src/core/data/builders/UserBuilder';
 
 test.describe('Login Page', () => {
   test('should navigate to login page', async ({ loginPage }) => {

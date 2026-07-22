@@ -1,4 +1,4 @@
-import { test, expect } from '../../src/fixtures/fixtures';
+import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
 
 test.describe('E2E Tests - Critical-Path Flows', () => {
   test('should complete a full user journey on demo site', async ({ demoPage }) => {

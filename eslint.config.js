@@ -7,13 +7,8 @@ module.exports = [
       'node_modules/**',
       'dist/**',
       'reports/**',
-      'screenshots/**',
-      'videos/**',
-      'traces/**',
-      'logs/**',
       'downloads/**',
       'playwright-report/**',
-      'test-results/**',
       'demo/**',
       '**/*.js'
     ]

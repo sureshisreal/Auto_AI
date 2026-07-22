@@ -1,4 +1,4 @@
-import { test, expect } from '../../src/fixtures/fixtures';
+import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
 
 test.describe('Demo Page - Smoke Tests', () => {
   test('should load demo page successfully', async ({ demoPage }) => {

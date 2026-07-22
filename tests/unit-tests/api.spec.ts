@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { ApiClient } from '../../src/api/ApiClient';
-import { TEST_PAYLOADS } from '../../src/testdata/payloads.testdata';
+import { ApiClient } from '../../src/core/api/ApiClient';
+import { TEST_PAYLOADS } from '../../src/core/data/testdata/payloads.testdata';
 
 interface Post {
   id: number;

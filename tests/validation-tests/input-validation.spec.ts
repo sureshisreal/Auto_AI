@@ -1,4 +1,4 @@
-import { test, expect } from '../../src/fixtures/fixtures';
+import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
 
 test.describe('Validation Tests - Input Validation', () => {
   test('should reject empty credentials', async ({ loginPage }) => {

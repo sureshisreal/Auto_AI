@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test';
-import { BrowserUtils } from './src/utils/BrowserUtils';
-import Config from './src/config/Config';
+import { BrowserUtils } from './src/core/shared/utils/BrowserUtils';
+import Config from './src/core/config/Config';
 
 export default defineConfig({
   testDir: './tests',
@@ -9,14 +9,14 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : Config.retries,
   workers: process.env.CI ? 1 : undefined,
-  globalSetup: require.resolve('./src/hooks/GlobalSetup'),
-  globalTeardown: require.resolve('./src/hooks/GlobalTeardown'),
+  globalSetup: require.resolve('./src/core/runtime/hooks/GlobalSetup'),
+  globalTeardown: require.resolve('./src/core/runtime/hooks/GlobalTeardown'),
   reporter: [
     ['html', { outputFolder: 'reports/html', open: 'never' }],
     ['junit', { outputFile: 'reports/junit.xml' }],
     ['json', { outputFile: 'reports/test-results.json' }],
     ['allure-playwright', { resultsDir: 'reports/allure-results' }],
-    ['./src/listeners/CustomReporter.ts']
+    ['./src/core/runtime/listeners/CustomReporter.ts']
   ],
   use: {
     baseURL: Config.baseUrl,

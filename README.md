@@ -38,47 +38,53 @@ An enterprise-grade, TypeScript Playwright Test framework featuring:
 ## Architecture
 ```mermaid
 flowchart TD
-    T[Test *.spec.ts] -->|destructures fixtures, never `new`s a page| F[tests/fixtures/*.ts]
+    T[Test *.spec.ts] -->|destructures fixtures, never `new`s a page| F[src/core/runtime/fixtures]
     F --> P[Page Objects\nsrc/pages]
-    F --> CFG[Config singleton\nconfig/env.config.ts]
-    F --> LOG[Winston Logger\nsrc/utils/logging]
-    P --> CORE[Core Wrappers\nsrc/core]
-    CORE --> PW[Playwright Page/Locator API]
+    F --> S[Services\nsrc/core/api/services]
+    F --> V[ValidationHelpers\nsrc/core/shared/validations]
+    F --> TD[TestDataProvider\nsrc/core/shared/helpers]
+    P --> C[Components\nsrc/core/ui/components]
+    P --> B[BasePage\nsrc/core/ui/base]
+    C --> B
+    B --> PW[Playwright Page/Locator API]
+    S --> API[ApiClient\nsrc/core/api]
+    API --> PW
+    P -.optional.-> DB[Database Clients\nsrc/core/api/database]
+    F --> CFG[Config singleton\nsrc/core/config]
     CFG --> ENV[.env.qa / .env.stage / .env.uat / .env.prod]
+    B --> LOG[Winston Logger\nsrc/core/config/logger]
+    F --> HOOKS[Hooks + Listeners\nsrc/core/runtime/hooks, src/core/runtime/listeners]
 ```
 **Rule of Thumb**:
 - Tests only: `Arrange → Act → Assert` using fixtures
 - Page Objects only: Locators, Actions, Navigation
-- Assertions: In tests or custom assertions
+- Assertions: In tests or `ValidationHelpers`
 - Components: Reusable UI patterns across pages
 
 ---
 
 ## Folder Structure
+`src/pages/` sits directly under `src/` since it's what tests touch most directly. Everything else -
+the framework "engine" - lives under `src/core/`, grouped by architectural role:
+
+| Path | Contains | Purpose |
+|------|---------|---------|
+| `src/pages/` | `LoginPage.ts`, `DashboardPage.ts`, `DemoPage.ts`, `WeSendCVPage.ts` | Page Objects - the layer tests interact with |
+| `src/core/ui/` | `base/`, `components/`, `locators/` | Everything else that touches the Playwright Page/Locator API directly |
+| `src/core/api/` | `ApiClient.ts` (root), `services/`, `database/` | Backend/data I/O - API client, business services, optional multi-DB layer |
+| `src/core/runtime/` | `fixtures/`, `hooks/`, `listeners/` | Test lifecycle wiring - dependency injection, setup/teardown, console/network logging |
+| `src/core/data/` | `testdata/`, `builders/`, `models/`, `enums/` | Test data & domain shapes |
+| `src/core/config/` | `Config.ts` (root), `constants/`, `logger/` | Environment config and cross-cutting constants/logging |
+| `src/core/shared/` | `interfaces/`, `exceptions/`, `helpers/`, `utils/`, `validations/` | Cross-cutting support used across all the groups above |
+
 | Path | Purpose |
 |------|---------|
-| `.github/workflows/` | CI/CD pipelines (PR checks, regression) |
-| `config/` | Environment config and Playwright config |
-| `src/api/clients/` | API client wrappers (e.g., `auth.api.ts`) |
-| `src/api/payload-factories/` | Reusable API payload builders |
-| `src/core/` | Base classes: `base.page.ts`, `base.api.ts`, `custom.assertions.ts`, `wait.helpers.ts` |
-| `src/pages/components/` | Reusable UI components (Navbar, Table, Modal, etc.) |
-| `src/pages/auth/` | Authentication page objects |
-| `src/pages/dashboard/` | Dashboard and home page objects |
-| `src/test-data/constants/` | Enums and constants: Timeouts, Messages, EnvKeys, etc. |
-| `src/test-data/json/` | Static test data in JSON format |
-| `src/test-data/factories/` | Dynamic test data builders (Faker) |
-| `src/utils/ai/` | AI agent helpers (page indexer, visual diffs) |
-| `src/utils/database/` | Optional multi-database clients (Postgres/MySQL/MsSql/Oracle) |
-| `src/utils/logging/` | Winston logger |
-| `src/utils/reporting/` | Allure/Playwright reporting helpers |
+| `.github/workflows/` | CI pipeline |
 | `tests/smoke/` | Critical path smoke tests |
 | `tests/sanity/` | Quick sanity checks for PRs |
 | `tests/regression/` | Full regression suite |
 | `tests/api/` | API tests |
 | `tests/e2e/` | End-to-end user flows |
-| `tests/visual/` | Visual regression tests |
-| `tests/fixtures/` | Dependency-injected test fixtures |
 | `reports/` | All generated output lives here (gitignored) |
 | `reports/allure-results/`, `reports/allure-report/` | Raw Allure results / generated static site |
 | `reports/test-results/` | Playwright's own per-test artifacts (screenshots/videos/traces on failure, `.last-run.json`) |

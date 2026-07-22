@@ -1,5 +1,5 @@
 import { Page, Locator } from '@playwright/test';
-import { BasePage } from '../base/BasePage';
+import { BasePage } from '../core/ui/base/BasePage';
 
 export class DemoPage extends BasePage {
   private readonly animatedBox: Locator;

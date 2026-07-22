@@ -1,7 +1,7 @@
 import { Page, Locator } from '@playwright/test';
-import { BasePage } from '../base/BasePage';
-import { HeaderComponent } from '../components/HeaderComponent';
-import { Routes } from '../constants/Routes';
+import { BasePage } from '../core/ui/base/BasePage';
+import { HeaderComponent } from '../core/ui/components/HeaderComponent';
+import { Routes } from '../core/config/constants/Routes';
 
 export class LoginPage extends BasePage {
   private readonly usernameInput: Locator;

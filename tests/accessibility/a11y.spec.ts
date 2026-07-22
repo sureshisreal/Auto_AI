@@ -1,4 +1,4 @@
-import { test } from '../../src/fixtures/fixtures';
+import { test } from '../../src/core/runtime/fixtures/fixtures';
 import { injectAxe, checkA11y } from 'axe-playwright';
 
 test.describe('Accessibility Tests', () => {

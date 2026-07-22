@@ -1,4 +1,4 @@
-import { test } from '../../src/fixtures/fixtures';
+import { test } from '../../src/core/runtime/fixtures/fixtures';
 
 test.describe('Accessibility Tests - Keyboard Navigation', () => {
   test('should navigate via keyboard', async ({ demoPage, page }) => {

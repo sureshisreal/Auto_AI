@@ -1,8 +1,8 @@
-import { test, expect } from '../../src/fixtures/fixtures';
+import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import Logger from '../../src/logger/Logger';
+import Logger from '../../src/core/config/logger/Logger';
 
 test.describe('Vibe Tests - Animation & Perceptual Diff', () => {
   const artifactsDir = path.join(__dirname, '..', 'artifacts');

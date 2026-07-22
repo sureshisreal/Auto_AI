@@ -1,4 +1,4 @@
-import { test, expect } from '../../src/fixtures/fixtures';
+import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
 
 test.describe('Integration Tests - E2E Workflows', () => {
   test('should complete a sample user workflow on demo site', async ({ demoPage }) => {

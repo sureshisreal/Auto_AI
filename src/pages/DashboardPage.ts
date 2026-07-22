@@ -1,12 +1,12 @@
 import { Page, Locator } from '@playwright/test';
-import { BasePage } from '../base/BasePage';
-import { HeaderComponent } from '../components/HeaderComponent';
-import { NavigationMenu } from '../components/NavigationMenu';
-import { TableComponent } from '../components/TableComponent';
-import { Pagination } from '../components/Pagination';
-import { ToastMessage } from '../components/ToastMessage';
-import { CommonDialog } from '../components/CommonDialog';
-import { Routes } from '../constants/Routes';
+import { BasePage } from '../core/ui/base/BasePage';
+import { HeaderComponent } from '../core/ui/components/HeaderComponent';
+import { NavigationMenu } from '../core/ui/components/NavigationMenu';
+import { TableComponent } from '../core/ui/components/TableComponent';
+import { Pagination } from '../core/ui/components/Pagination';
+import { ToastMessage } from '../core/ui/components/ToastMessage';
+import { CommonDialog } from '../core/ui/components/CommonDialog';
+import { Routes } from '../core/config/constants/Routes';
 
 export class DashboardPage extends BasePage {
   public readonly header: HeaderComponent;
