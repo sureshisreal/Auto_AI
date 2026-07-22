@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Playwright AI Agent Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+        header { display: flex; align-items: center; gap: 20px; padding: 16px 24px; background: #333; color: white; }
+        header .logo { font-weight: bold; font-size: 18px; }
+        header nav a { color: white; margin-right: 12px; text-decoration: none; }
+        header button { margin-left: auto; margin-right: 0; padding: 8px 14px; background: #3949ab; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        header button + button { margin-left: 8px; }
+        .container { max-width: 700px; margin: 24px auto; background: white; padding: 24px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; }
+        nav[aria-label="Pagination"] { margin-top: 12px; display: flex; align-items: center; gap: 12px; }
+        nav[aria-label="Pagination"] button { padding: 6px 12px; cursor: pointer; }
+        #saveBtn { margin-top: 20px; padding: 10px 20px; background: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #2ecc71; color: white; padding: 12px 20px; border-radius: 4px; display: none; }
+        [role="dialog"] { display: none; position: fixed; top: 30%; left: 50%; transform: translateX(-50%); background: white; padding: 24px; border-radius: 8px; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
+        [role="dialog"] button { margin-right: 8px; padding: 8px 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <header>
+        <span class="logo">Playwright AI Agent Demo</span>
+        <nav>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/">Home</a>
+        </nav>
+        <button type="button" id="profileBtn">Profile</button>
+        <button type="button" id="logoutBtn">Logout</button>
+    </header>
+
+    <main class="container">
+        <h1>Dashboard</h1>
+        <table aria-label="Jobs">
+            <thead>
+                <tr><th>Title</th><th>Location</th><th>Salary</th></tr>
+            </thead>
+            <tbody id="jobsTableBody"></tbody>
+        </table>
+        <nav aria-label="Pagination">
+            <button type="button" id="prevPageBtn">Previous</button>
+            <span id="pageIndicator">Page 1 of 2</span>
+            <button type="button" id="nextPageBtn">Next</button>
+        </nav>
+        <button type="button" id="saveBtn">Save Changes</button>
+    </main>
+
+    <div role="status" class="toast" id="toast"></div>
+
+    <div role="dialog" aria-modal="true" aria-label="Confirm logout" id="logoutDialog">
+        <p>Are you sure you want to logout?</p>
+        <button type="button" id="confirmLogoutBtn">Confirm</button>
+        <button type="button" id="cancelLogoutBtn">Cancel</button>
+    </div>
+
+    <script>
+        var JOBS = [
+            { title: 'QA Automation Engineer', location: 'Remote', salary: '$95,000' },
+            { title: 'Senior SDET', location: 'Austin, TX', salary: '$130,000' },
+            { title: 'Backend Engineer', location: 'New York, NY', salary: '$140,000' },
+            { title: 'Frontend Engineer', location: 'Remote', salary: '$120,000' },
+            { title: 'DevOps Engineer', location: 'Seattle, WA', salary: '$135,000' },
+            { title: 'Product Manager', location: 'Remote', salary: '$150,000' }
+        ];
+        var PAGE_SIZE = 3;
+        var currentPage = 1;
+        var totalPages = Math.ceil(JOBS.length / PAGE_SIZE);
+
+        function renderPage() {
+            var tbody = document.getElementById('jobsTableBody');
+            tbody.innerHTML = '';
+            var start = (currentPage - 1) * PAGE_SIZE;
+            JOBS.slice(start, start + PAGE_SIZE).forEach(function (job) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = '<td>' + job.title + '</td><td>' + job.location + '</td><td>' + job.salary + '</td>';
+                tbody.appendChild(tr);
+            });
+            document.getElementById('pageIndicator').textContent = 'Page ' + currentPage + ' of ' + totalPages;
+            document.getElementById('prevPageBtn').disabled = currentPage === 1;
+            document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+        }
+
+        document.getElementById('prevPageBtn').addEventListener('click', function () {
+            if (currentPage > 1) { currentPage -= 1; renderPage(); }
+        });
+        document.getElementById('nextPageBtn').addEventListener('click', function () {
+            if (currentPage < totalPages) { currentPage += 1; renderPage(); }
+        });
+
+        document.getElementById('saveBtn').addEventListener('click', function () {
+            var toast = document.getElementById('toast');
+            toast.textContent = 'Saved successfully';
+            toast.style.display = 'block';
+            setTimeout(function () { toast.style.display = 'none'; }, 2000);
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', function () {
+            document.getElementById('logoutDialog').style.display = 'block';
+        });
+        document.getElementById('cancelLogoutBtn').addEventListener('click', function () {
+            document.getElementById('logoutDialog').style.display = 'none';
+        });
+        document.getElementById('confirmLogoutBtn').addEventListener('click', function () {
+            window.location.href = '/login';
+        });
+
+        renderPage();
+    </script>
+</body>
+</html>

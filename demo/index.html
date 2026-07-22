@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playwright AI Agent Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .animated-box {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #3949ab;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #303f9f;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>Playwright AI Agent Demo</h1>
+        <p>This is a demo page for our Playwright automation framework!</p>
+
+        <div class="animated-box" id="animatedBox"></div>
+
+        <button id="animateBtn">Animate Box</button>
+        <button id="navBtn">Go to About (404)</button>
+    </main>
+
+    <script>
+        const animatedBox = document.getElementById('animatedBox');
+        let animationFrames = [];
+
+        window.sampleAnimationFrames = function(durationMs = 2000) {
+            animationFrames = [];
+            const startTime = performance.now();
+            
+            function animate() {
+                const timestamp = performance.now();
+                animationFrames.push(timestamp);
+                
+                if (timestamp - startTime < durationMs) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            animate();
+            return new Promise(resolve => {
+                setTimeout(() => resolve(animationFrames), durationMs + 100);
+            });
+        };
+
+        document.getElementById('animateBtn').addEventListener('click', () => {
+            animatedBox.style.transition = 'transform 1s ease-in-out';
+            animatedBox.style.transform = animatedBox.style.transform === 'rotate(360deg)' 
+                ? 'rotate(0deg)' 
+                : 'rotate(360deg)';
+            window.sampleAnimationFrames(1000);
+        });
+
+        document.getElementById('navBtn').addEventListener('click', () => {
+            window.location.href = '/about';
+        });
+    </script>
+</body>
+</html>

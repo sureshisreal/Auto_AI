@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  playwright-tests:
+    build: .
+    volumes:
+      - ./playwright-report:/app/playwright-report
+      - ./test-results:/app/test-results
+    command: npm test

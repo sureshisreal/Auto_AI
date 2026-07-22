@@ -1,0 +1,10 @@
+export const Timeouts = {
+  DEFAULT: 5000,
+  SHORT: 2000,
+  MEDIUM: 10000,
+  LONG: 30000,
+  PAGE_LOAD: 60000,
+  API_REQUEST: 30000,
+  DOWNLOAD: 60000,
+  UPLOAD: 60000
+};
