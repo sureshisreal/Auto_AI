@@ -1,5 +1,5 @@
 import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
-import * as allure from 'allure-js-commons';
+import { AllureUtils } from '../../src/core/shared/utils/AllureUtils';
 import { UserBuilder } from '../../src/core/data/builders/UserBuilder';
 
 /**
@@ -9,9 +9,11 @@ import { UserBuilder } from '../../src/core/data/builders/UserBuilder';
  */
 test.describe('Sample - Security Tests', () => {
   test.beforeEach(async () => {
-    await allure.epic('Sample Test Categories');
-    await allure.feature('Security Tests');
-    await allure.severity(allure.Severity.BLOCKER);
+    await AllureUtils.setCategory(
+      'Sample Test Categories',
+      'Security Tests',
+      AllureUtils.Severity.BLOCKER
+    );
   });
 
   test('invalid credentials never reach the authenticated area (authentication)', async ({
@@ -24,17 +26,13 @@ test.describe('Sample - Security Tests', () => {
       .withPassword('wrong')
       .build();
 
-    await allure.step('Navigate to login and attempt sign-in', async () => {
+    await AllureUtils.step('Navigate to login and attempt sign-in', async () => {
       await loginPage.navigate();
       await loginPage.login(attacker.email, attacker.password);
     });
-    await allure.attachment(
-      'Login attempt result',
-      await page.screenshot(),
-      allure.ContentType.PNG
-    );
+    await AllureUtils.attachScreenshot(page, 'Login attempt result');
 
-    await allure.step('Verify access was denied', async () => {
+    await AllureUtils.step('Verify access was denied', async () => {
       await validationHelpers.verifyText(loginPage.getErrorMessageLocator(), 'Invalid');
       await expect(loginPage.page).not.toHaveURL(/dashboard/);
     });
@@ -46,19 +44,15 @@ test.describe('Sample - Security Tests', () => {
   }) => {
     const payload = '<script>window.__xssFired = true;</script>';
 
-    await allure.step('Submit a script-tag payload through the username field', async () => {
+    await AllureUtils.step('Submit a script-tag payload through the username field', async () => {
       await loginPage.navigate();
       await loginPage.enterUsername(payload);
       await loginPage.enterPassword('irrelevant');
       await loginPage.clickLogin();
     });
-    await allure.attachment(
-      'Form after malicious input submitted',
-      await page.screenshot(),
-      allure.ContentType.PNG
-    );
+    await AllureUtils.attachScreenshot(page, 'Form after malicious input submitted');
 
-    const xssFired = await allure.step('Verify the payload never executed as script', async () => {
+    const xssFired = await AllureUtils.step('Verify the payload never executed as script', () => {
       return page.evaluate(() => (window as unknown as { __xssFired?: boolean }).__xssFired);
     });
     expect(xssFired).toBeUndefined();
@@ -68,18 +62,14 @@ test.describe('Sample - Security Tests', () => {
     page,
     config,
   }) => {
-    const response = await allure.step(`Request ${config.baseUrl}`, async () =>
+    const response = await AllureUtils.step(`Request ${config.baseUrl}`, () =>
       page.goto(config.baseUrl)
     );
 
     const headers = response?.headers();
-    await allure.attachment(
-      'Response headers',
-      JSON.stringify(headers, null, 2),
-      allure.ContentType.JSON
-    );
+    await AllureUtils.attachJson('Response headers', headers);
 
-    await allure.step('Verify headers are present', async () => {
+    await AllureUtils.step('Verify headers are present', () => {
       expect(headers).toBeDefined();
     });
     // In production this is where you'd assert real hardening headers, e.g.:

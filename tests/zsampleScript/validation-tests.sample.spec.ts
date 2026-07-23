@@ -1,5 +1,5 @@
 import { test } from '../../src/core/runtime/fixtures/fixtures';
-import * as allure from 'allure-js-commons';
+import { AllureUtils } from '../../src/core/shared/utils/AllureUtils';
 import { UserBuilder } from '../../src/core/data/builders/UserBuilder';
 
 /**
@@ -9,9 +9,7 @@ import { UserBuilder } from '../../src/core/data/builders/UserBuilder';
  */
 test.describe('Sample - Validation Tests', () => {
   test.beforeEach(async () => {
-    await allure.epic('Sample Test Categories');
-    await allure.feature('Validation Tests');
-    await allure.severity(allure.Severity.NORMAL);
+    await AllureUtils.setCategory('Sample Test Categories', 'Validation Tests');
   });
 
   test('malformed email is rejected with a visible error (format compliance)', async ({
@@ -23,15 +21,15 @@ test.describe('Sample - Validation Tests', () => {
       .withEmail('not-an-email')
       .withPassword('whatever123')
       .build();
-    await allure.parameter('email', badFormatUser.email);
+    await AllureUtils.parameter('email', badFormatUser.email);
 
-    await allure.step('Submit a malformed email', async () => {
+    await AllureUtils.step('Submit a malformed email', async () => {
       await loginPage.navigate();
       await loginPage.login(badFormatUser.email, badFormatUser.password);
     });
-    await allure.attachment('Validation result', await page.screenshot(), allure.ContentType.PNG);
+    await AllureUtils.attachScreenshot(page, 'Validation result');
 
-    await allure.step('Verify the error message is shown', async () => {
+    await AllureUtils.step('Verify the error message is shown', async () => {
       await validationHelpers.verifyText(loginPage.getErrorMessageLocator(), 'Invalid');
     });
   });
@@ -42,19 +40,15 @@ test.describe('Sample - Validation Tests', () => {
     page,
   }) => {
     const veryLongEmail = `${'a'.repeat(500)}@example.com`;
-    await allure.parameter('emailLength', String(veryLongEmail.length));
+    await AllureUtils.parameter('emailLength', String(veryLongEmail.length));
 
-    await allure.step('Submit a 500+ character email', async () => {
+    await AllureUtils.step('Submit a 500+ character email', async () => {
       await loginPage.navigate();
       await loginPage.login(veryLongEmail, 'whatever123');
     });
-    await allure.attachment(
-      'Form after long input',
-      await page.screenshot(),
-      allure.ContentType.PNG
-    );
+    await AllureUtils.attachScreenshot(page, 'Form after long input');
 
-    await allure.step('Verify the form degrades gracefully', async () => {
+    await AllureUtils.step('Verify the form degrades gracefully', async () => {
       await validationHelpers.verifyElementVisible(loginPage.getErrorMessageLocator());
     });
   });
@@ -66,18 +60,14 @@ test.describe('Sample - Validation Tests', () => {
   }) => {
     const maliciousInput = "' OR '1'='1'; --";
 
-    await allure.step('Submit a SQL-injection-style payload', async () => {
+    await AllureUtils.step('Submit a SQL-injection-style payload', async () => {
       await loginPage.navigate();
       await loginPage.login(maliciousInput, maliciousInput);
     });
-    await allure.attachment(
-      'Form after malicious input',
-      await page.screenshot(),
-      allure.ContentType.PNG
-    );
+    await AllureUtils.attachScreenshot(page, 'Form after malicious input');
 
     // The app should degrade to a normal "invalid credentials" error, not crash or bypass auth.
-    await allure.step('Verify auth was not bypassed', async () => {
+    await AllureUtils.step('Verify auth was not bypassed', async () => {
       await validationHelpers.verifyText(loginPage.getErrorMessageLocator(), 'Invalid');
     });
   });

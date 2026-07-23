@@ -1,5 +1,6 @@
 import { test } from '../../src/core/runtime/fixtures/fixtures';
-import { injectAxe, checkA11y } from 'axe-playwright';
+import { injectAxe } from 'axe-playwright';
+import { AccessibilityUtils } from '../../src/core/shared/utils/AccessibilityUtils';
 
 test.describe('Accessibility Tests', () => {
   test.beforeEach(async ({ demoPage, page }) => {
@@ -8,9 +9,6 @@ test.describe('Accessibility Tests', () => {
   });
 
   test('should not have any automatically detectable accessibility issues', async ({ page }) => {
-    await checkA11y(page, undefined, {
-      detailedReport: true,
-      detailedReportOptions: { html: true }
-    });
+    await AccessibilityUtils.runAxeScan(page);
   });
 });

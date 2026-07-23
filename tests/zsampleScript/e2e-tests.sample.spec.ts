@@ -1,5 +1,5 @@
 import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
-import * as allure from 'allure-js-commons';
+import { AllureUtils } from '../../src/core/shared/utils/AllureUtils';
 import { UserBuilder } from '../../src/core/data/builders/UserBuilder';
 import { LoginPage } from '../../src/pages/LoginPage';
 import { FilePaths } from '../../src/core/config/constants/FilePaths';
@@ -15,9 +15,11 @@ import { FilePaths } from '../../src/core/config/constants/FilePaths';
  */
 test.describe('Sample - E2E Tests', () => {
   test.beforeEach(async () => {
-    await allure.epic('Sample Test Categories');
-    await allure.feature('E2E Tests');
-    await allure.severity(allure.Severity.BLOCKER);
+    await AllureUtils.setCategory(
+      'Sample Test Categories',
+      'E2E Tests',
+      AllureUtils.Severity.BLOCKER
+    );
   });
 
   test('critical path: a user attempts to sign in end-to-end via the POM', async ({
@@ -27,20 +29,20 @@ test.describe('Sample - E2E Tests', () => {
   }) => {
     const user = new UserBuilder().build();
 
-    await allure.step('Land on the login page', async () => {
+    await AllureUtils.step('Land on the login page', async () => {
       await loginPage.navigate();
       expect(await loginPage.header.isLogoVisible()).toBe(true);
     });
-    await allure.attachment('Login page', await page.screenshot(), allure.ContentType.PNG);
+    await AllureUtils.attachScreenshot(page, 'Login page');
 
-    await allure.step('Drive the entire flow through LoginPage', async () => {
+    await AllureUtils.step('Drive the entire flow through LoginPage', async () => {
       await loginPage.login(user.email, user.password);
     });
 
-    await allure.step('Verify the journey ends in the expected state', async () => {
+    await AllureUtils.step('Verify the journey ends in the expected state', async () => {
       await validationHelpers.verifyText(loginPage.getErrorMessageLocator(), 'Invalid');
     });
-    await allure.attachment('End of journey', await page.screenshot(), allure.ContentType.PNG);
+    await AllureUtils.attachScreenshot(page, 'End of journey');
   });
 
   test('critical path with full video evidence attached', async ({ browser, config }) => {
@@ -56,18 +58,12 @@ test.describe('Sample - E2E Tests', () => {
     const loginPage = new LoginPage(page);
     const user = new UserBuilder().build();
 
-    await allure.step('Run the critical-path journey with video recording on', async () => {
+    await AllureUtils.step('Run the critical-path journey with video recording on', async () => {
       await loginPage.navigate();
       await loginPage.login(user.email, user.password);
       await expect(loginPage.getErrorMessageLocator()).toBeVisible();
     });
 
-    const video = page.video();
-    await context.close(); // flushes and finalizes the video file
-
-    if (video) {
-      const videoPath = await video.path();
-      await allure.attachmentPath('Critical path recording', videoPath, allure.ContentType.WEBM);
-    }
+    await AllureUtils.attachVideo(page, context, 'Critical path recording');
   });
 });

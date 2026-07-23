@@ -1,5 +1,5 @@
 import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
-import * as allure from 'allure-js-commons';
+import { AllureUtils } from '../../src/core/shared/utils/AllureUtils';
 
 /**
  * SAMPLE 3/13: Performance Tests
@@ -8,38 +8,36 @@ import * as allure from 'allure-js-commons';
  */
 test.describe('Sample - Performance Tests', () => {
   test.beforeEach(async () => {
-    await allure.epic('Sample Test Categories');
-    await allure.feature('Performance Tests');
-    await allure.severity(allure.Severity.NORMAL);
+    await AllureUtils.setCategory('Sample Test Categories', 'Performance Tests');
   });
 
   test('page load time stays under a reasonable budget', async ({ page, config }) => {
     const startTime = Date.now();
-    await allure.step(`Navigate to ${config.baseUrl}`, async () => {
+    await AllureUtils.step(`Navigate to ${config.baseUrl}`, async () => {
       await page.goto(config.baseUrl);
     });
     const loadTime = Date.now() - startTime;
 
-    await allure.parameter('loadTimeMs', String(loadTime));
-    await allure.step('Assert load time is under budget', async () => {
+    await AllureUtils.parameter('loadTimeMs', String(loadTime));
+    await AllureUtils.step('Assert load time is under budget', () => {
       expect(loadTime).toBeLessThan(5000);
     });
-    await allure.attachment('Loaded page', await page.screenshot(), allure.ContentType.PNG);
+    await AllureUtils.attachScreenshot(page, 'Loaded page');
   });
 
   test('First Contentful Paint is reported and within budget', async ({ page, config }) => {
-    await allure.step('Navigate and collect paint timing', async () => {
+    await AllureUtils.step('Navigate and collect paint timing', async () => {
       await page.goto(config.baseUrl);
     });
 
-    const fcp = await allure.step('Read the first-contentful-paint performance entry', async () => {
+    const fcp = await AllureUtils.step('Read the first-contentful-paint performance entry', () => {
       return page.evaluate(() => {
         const [entry] = performance.getEntriesByName('first-contentful-paint');
         return entry ? entry.startTime : null;
       });
     });
 
-    await allure.parameter('firstContentfulPaintMs', String(fcp));
+    await AllureUtils.parameter('firstContentfulPaintMs', String(fcp));
     // Not every headless environment reports FCP - assert the shape when it's available
     // rather than failing the whole suite on an unsupported browser/CI combo.
     if (fcp !== null) {
@@ -51,16 +49,12 @@ test.describe('Sample - Performance Tests', () => {
     const requests: string[] = [];
     page.on('request', (request) => requests.push(request.url()));
 
-    await allure.step(`Load ${config.baseUrl} and count outgoing requests`, async () => {
+    await AllureUtils.step(`Load ${config.baseUrl} and count outgoing requests`, async () => {
       await page.goto(config.baseUrl);
     });
 
-    await allure.attachment(
-      'Requests fired',
-      JSON.stringify(requests, null, 2),
-      allure.ContentType.JSON
-    );
-    await allure.step('Assert resource count is reasonable', async () => {
+    await AllureUtils.attachJson('Requests fired', requests);
+    await AllureUtils.step('Assert resource count is reasonable', () => {
       expect(requests.length).toBeLessThan(20);
     });
   });

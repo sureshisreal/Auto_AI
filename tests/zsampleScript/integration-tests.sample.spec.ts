@@ -1,5 +1,5 @@
 import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
-import * as allure from 'allure-js-commons';
+import { AllureUtils } from '../../src/core/shared/utils/AllureUtils';
 
 /**
  * SAMPLE 2/13: Integration Tests
@@ -8,35 +8,36 @@ import * as allure from 'allure-js-commons';
  */
 test.describe('Sample - Integration Tests', () => {
   test.beforeEach(async () => {
-    await allure.epic('Sample Test Categories');
-    await allure.feature('Integration Tests');
-    await allure.severity(allure.Severity.CRITICAL);
+    await AllureUtils.setCategory(
+      'Sample Test Categories',
+      'Integration Tests',
+      AllureUtils.Severity.CRITICAL
+    );
   });
 
   test('demo journey: load page -> animate -> navigate to a second page', async ({
     demoPage,
     page,
   }) => {
-    await allure.step('Land on the demo page', async () => {
+    await AllureUtils.step('Land on the demo page', async () => {
       await demoPage.goToDemo();
       await expect(demoPage.getAnimatedBox()).toBeVisible();
     });
-    await allure.attachment('After page load', await page.screenshot(), allure.ContentType.PNG);
+    await AllureUtils.attachScreenshot(page, 'After page load');
 
-    await allure.step('Trigger an interaction that depends on the page having loaded', async () => {
-      await demoPage.clickAnimateButton();
-      await expect(demoPage.getAnimatedBox()).toBeVisible();
-    });
-    await allure.attachment(
-      'After animation trigger',
-      await page.screenshot(),
-      allure.ContentType.PNG
+    await AllureUtils.step(
+      'Trigger an interaction that depends on the page having loaded',
+      async () => {
+        await demoPage.clickAnimateButton();
+        await expect(demoPage.getAnimatedBox()).toBeVisible();
+      }
     );
+    await AllureUtils.attachScreenshot(page, 'After animation trigger');
 
-    await allure.step('Multi-step navigation to a second page', async () => {
+    await AllureUtils.step('Multi-step navigation to a second page', async () => {
       await demoPage.clickNavButton();
       await expect(page).toHaveURL(/about/);
     });
-    await allure.attachment('After navigation', await page.screenshot(), allure.ContentType.PNG);
+    await AllureUtils.attachScreenshot(page, 'After navigation');
   });
 });

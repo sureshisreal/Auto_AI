@@ -1,5 +1,5 @@
 import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
-import * as allure from 'allure-js-commons';
+import { AllureUtils } from '../../src/core/shared/utils/AllureUtils';
 
 /**
  * SAMPLE 9/13: Resilience Tests
@@ -8,25 +8,19 @@ import * as allure from 'allure-js-commons';
  */
 test.describe('Sample - Resilience Tests', () => {
   test.beforeEach(async () => {
-    await allure.epic('Sample Test Categories');
-    await allure.feature('Resilience Tests');
-    await allure.severity(allure.Severity.NORMAL);
+    await AllureUtils.setCategory('Sample Test Categories', 'Resilience Tests');
   });
 
   test('page remains usable when a stylesheet fails to load (asset loading failures)', async ({
     page,
     config,
   }) => {
-    await allure.step('Abort all CSS requests and load the page', async () => {
+    await AllureUtils.step('Abort all CSS requests and load the page', async () => {
       await page.route('**/*.css', (route) => route.abort());
       await page.goto(config.baseUrl);
     });
 
-    await allure.attachment(
-      'Page with no stylesheet',
-      await page.screenshot(),
-      allure.ContentType.PNG
-    );
+    await AllureUtils.attachScreenshot(page, 'Page with no stylesheet');
     expect(await page.title()).toBeTruthy();
   });
 
@@ -35,7 +29,7 @@ test.describe('Sample - Resilience Tests', () => {
     config,
   }) => {
     let cssBlocked = 0;
-    await allure.step('Block CSS only, leave images/scripts working', async () => {
+    await AllureUtils.step('Block CSS only, leave images/scripts working', async () => {
       await page.route('**/*.css', (route) => {
         cssBlocked++;
         route.abort();
@@ -44,12 +38,8 @@ test.describe('Sample - Resilience Tests', () => {
       await page.goto(config.baseUrl);
     });
 
-    await allure.parameter('cssRequestsBlocked', String(cssBlocked));
-    await allure.attachment(
-      'Page under partial outage',
-      await page.screenshot(),
-      allure.ContentType.PNG
-    );
+    await AllureUtils.parameter('cssRequestsBlocked', String(cssBlocked));
+    await AllureUtils.attachScreenshot(page, 'Page under partial outage');
     expect(await page.title()).toBeTruthy();
     expect(cssBlocked).toBeGreaterThanOrEqual(0);
   });
@@ -58,12 +48,12 @@ test.describe('Sample - Resilience Tests', () => {
     page,
     config,
   }) => {
-    await allure.step('Abort /api/status and load the page', async () => {
+    await AllureUtils.step('Abort /api/status and load the page', async () => {
       await page.route('**/api/status', (route) => route.abort());
       await page.goto(config.baseUrl);
     });
 
-    const outcome = await allure.step('Call the broken endpoint', async () => {
+    const outcome = await AllureUtils.step('Call the broken endpoint', () => {
       return page.evaluate(async () => {
         try {
           await fetch('/api/status');

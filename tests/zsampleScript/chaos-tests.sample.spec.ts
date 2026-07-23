@@ -1,5 +1,5 @@
 import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
-import * as allure from 'allure-js-commons';
+import { AllureUtils } from '../../src/core/shared/utils/AllureUtils';
 
 /**
  * SAMPLE 13/13: Chaos Tests
@@ -8,9 +8,7 @@ import * as allure from 'allure-js-commons';
  */
 test.describe('Sample - Chaos Tests', () => {
   test.beforeEach(async () => {
-    await allure.epic('Sample Test Categories');
-    await allure.feature('Chaos Tests');
-    await allure.severity(allure.Severity.NORMAL);
+    await AllureUtils.setCategory('Sample Test Categories', 'Chaos Tests');
   });
 
   test('multiple concurrent users can load the app at the same time (multiple users)', async ({
@@ -24,7 +22,7 @@ test.describe('Sample - Chaos Tests', () => {
       context.newPage(),
     ]);
 
-    await allure.step('3 users hit the app simultaneously', async () => {
+    await AllureUtils.step('3 users hit the app simultaneously', async () => {
       await Promise.all([
         user1.goto(config.baseUrl),
         user2.goto(config.baseUrl),
@@ -32,7 +30,7 @@ test.describe('Sample - Chaos Tests', () => {
       ]);
     });
 
-    await allure.attachment('User 1 view', await user1.screenshot(), allure.ContentType.PNG);
+    await AllureUtils.attachScreenshot(user1, 'User 1 view');
     for (const page of [user1, user2, user3]) {
       expect(await page.title()).toBeTruthy();
     }
@@ -49,15 +47,11 @@ test.describe('Sample - Chaos Tests', () => {
 
     await degradedUser.route('**/api/status', (route) => route.abort());
 
-    await allure.step('Healthy user and backend-degraded user load concurrently', async () => {
+    await AllureUtils.step('Healthy user and backend-degraded user load concurrently', async () => {
       await Promise.all([healthyUser.goto(config.baseUrl), degradedUser.goto(config.baseUrl)]);
     });
 
-    await allure.attachment(
-      'Degraded user view',
-      await degradedUser.screenshot(),
-      allure.ContentType.PNG
-    );
+    await AllureUtils.attachScreenshot(degradedUser, 'Degraded user view');
     // The degraded user's page still renders even though its backend call is broken.
     expect(await healthyUser.title()).toBeTruthy();
     expect(await degradedUser.title()).toBeTruthy();
@@ -77,7 +71,7 @@ test.describe('Sample - Chaos Tests', () => {
       route.continue();
     });
 
-    await allure.step('Load the page with randomized image response timing', async () => {
+    await AllureUtils.step('Load the page with randomized image response timing', async () => {
       await page.goto(config.baseUrl);
     });
 
