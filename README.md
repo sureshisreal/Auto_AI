@@ -20,6 +20,7 @@ An enterprise-grade, TypeScript Playwright Test framework featuring:
 - [Core Concepts](#core-concepts)
 - [Running Tests](#running-tests)
   - [Test Categories](#test-categories)
+  - [Sample Scripts](#sample-scripts-testszsamplescript)
   - [Browser & Environment Selection](#browser--environment-selection)
   - [Debugging Modes](#debugging-modes)
 - [How-To Guides](#how-to-guides)
@@ -137,7 +138,7 @@ The framework includes a local demo app for quick validation! Just run:
 ```bash
 npm test
 ```
-This will automatically start `tools/dev-server.js` and serve the `demo/` app at `http://127.0.0.1:3000`.
+This will automatically start `src/core/tools/dev-server.js` and serve the `demo/` app at `http://127.0.0.1:3000`.
 
 ---
 
@@ -175,6 +176,54 @@ export const test = base.extend<PageFixtures>({
 | `npm run test:regression` | Full regression suite |
 | `npm run test:api` | API-only tests |
 | `npm run test:e2e` | End-to-end user flows |
+
+### Sample Scripts (`tests/zsampleScript/`)
+Thirteen reference specs, one per testing category this framework supports, each a small, real,
+passing example of that category's technique - a "how do I write this kind of test here" reference,
+not part of the required smoke/sanity/regression/e2e/api suites.
+
+```bash
+npx playwright test tests/zsampleScript                              # all 13 categories
+npx playwright test tests/zsampleScript --project=chromium           # one browser only
+npx playwright test tests/zsampleScript/security-tests.sample.spec.ts # a single category
+```
+
+| File | Category |
+|---|---|
+| `unit-tests.sample.spec.ts` | Unit - individual functions/utilities, no browser |
+| `integration-tests.sample.spec.ts` | Integration - multi-step workflows across components |
+| `performance-tests.sample.spec.ts` | Performance - load time, FCP, resource count |
+| `security-tests.sample.spec.ts` | Security - auth, XSS prevention, header validation |
+| `validation-tests.sample.spec.ts` | Validation - format, length, malicious-pattern input |
+| `mock-tests.sample.spec.ts` | Mock - stubbed/aborted responses, simulated failures |
+| `interop-tests.sample.spec.ts` | Interop - CSS/ES6 feature support, viewport |
+| `accessibility-tests.sample.spec.ts` | Accessibility - axe scan, keyboard nav, focus order |
+| `resilience-tests.sample.spec.ts` | Resilience - asset failures, partial outages |
+| `network-resilience-tests.sample.spec.ts` | Network-resilience - offline, slow, dropped connections |
+| `i18n-tests.sample.spec.ts` | i18n - language attributes, direction, pluralization |
+| `e2e-tests.sample.spec.ts` | E2E - full critical-path journey via POM |
+| `chaos-tests.sample.spec.ts` | Chaos - concurrency, partial failures, random delays |
+
+These run against the bundled `demo/` app and follow every framework convention (fixtures import,
+POM, `ValidationHelpers`, `Config`, builders) - since `testDir` covers all of `tests/`, they're also
+included automatically in a plain `npm test`.
+
+Every sample also demonstrates rich Allure reporting via `allure-js-commons` (a direct devDependency,
+matched to `allure-playwright`'s version) rather than relying only on Playwright's own
+failure-only screenshot/video capture:
+- **`allure.step(name, fn)`** wraps each Arrange/Act/Assert phase so the report shows a readable
+  step timeline instead of one flat pass/fail line
+- **`allure.attachment(name, buffer, ContentType.PNG/JSON)`** attaches a screenshot or JSON payload
+  at key checkpoints - on *every* run, not just failures
+- **`allure.epic()` / `feature()` / `severity()`** label each test so the report's Behaviors view
+  groups them by category instead of by file
+- `e2e-tests.sample.spec.ts` additionally shows how to attach a **video**: a dedicated
+  `browser.newContext({ recordVideo: ... })` is required (the default fixture context only saves
+  video on failure), and the file must be read via `page.video()?.path()` **after** `context.close()`
+  finalizes it, then attached with `allure.attachmentPath(name, path, ContentType.WEBM)`
+
+Regenerate the report after any test run to see this (`npm run allurereport`) - see
+[Reporting & Logging](#reporting--logging).
 
 ### Browser & Environment Selection
 | Command | Effect |

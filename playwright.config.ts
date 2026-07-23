@@ -16,19 +16,19 @@ export default defineConfig({
     ['junit', { outputFile: 'reports/junit.xml' }],
     ['json', { outputFile: 'reports/test-results.json' }],
     ['allure-playwright', { resultsDir: 'reports/allure-results' }],
-    ['./src/core/runtime/listeners/CustomReporter.ts']
+    ['./src/core/runtime/listeners/CustomReporter.ts'],
   ],
   use: {
     baseURL: Config.baseUrl,
     headless: Config.headless,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure'
+    video: 'retain-on-failure',
   },
   projects: BrowserUtils.buildProjects(),
   webServer: {
-    command: 'node tools/dev-server.js',
+    command: 'node src/core/tools/dev-server.js',
     url: 'http://127.0.0.1:3000',
-    reuseExistingServer: !process.env.CI
-  }
+    reuseExistingServer: !process.env.CI,
+  },
 });

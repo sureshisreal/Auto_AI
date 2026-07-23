@@ -20,7 +20,7 @@ Put scenarios into whichever of these already fits, and only propose a new categ
 
 ## Apps Available to Plan Against
 - **`demo/`** - the bundled local app (`login.html`, `dashboard.html`, `index.html`), served at
-  `http://127.0.0.1:3000` by `tools/dev-server.js` automatically on `npm test`. Use this for any
+  `http://127.0.0.1:3000` by `src/core/tools/dev-server.js` automatically on `npm test`. Use this for any
   framework-internal or example plan - no external dependency, safe for CI.
 - **WeSendCV** (`https://wesendcv.com`) - the real external target for `tests/wesendcv/`; plans touching
   it should note that it hits a live site (network-resilience/interop concerns apply).
@@ -39,7 +39,7 @@ Put scenarios into whichever of these already fits, and only propose a new categ
 - Use Playwright best practices - `getByRole`/`getByLabel`/`getByPlaceholder`/`getByText`/`getByTestId`
   only, never XPath
 - Consider accessibility testing with axe-playwright (mirrors the existing `tests/accessibility/` suite)
-- Include visual regression testing where appropriate (`tools/compare.js`, pixel diffing)
+- Include visual regression testing where appropriate (`src/core/tools/compare.js`, pixel diffing)
 - Plan for mobile testing with device emulation (Mobile Chrome/Mobile Safari projects already run by
   default - see `BrowserUtils.buildProjects()`)
 - Note the 4 environments (`.env.qa`/`.env.stage`/`.env.uat`/`.env.prod`) if the plan is environment-sensitive

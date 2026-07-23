@@ -16,7 +16,7 @@ export class ScreenshotUtils {
     return path.join(FilePaths.SCREENSHOTS, name.endsWith('.png') ? name : `${name}.png`);
   }
 
-  /** Pixel-diffs two PNGs - the same technique tools/compare.js uses, exposed as a reusable framework utility. */
+  /** Pixel-diffs two PNGs - the same technique src/core/tools/compare.js uses, exposed as a reusable framework utility. */
   public static compare(
     baselinePath: string,
     currentPath: string,
@@ -28,7 +28,9 @@ export class ScreenshotUtils {
     const { width, height } = baseline;
     const diff = new PNG({ width, height });
 
-    const diffPixels = pixelmatch(baseline.data, current.data, diff.data, width, height, { threshold: 0.1 });
+    const diffPixels = pixelmatch(baseline.data, current.data, diff.data, width, height, {
+      threshold: 0.1,
+    });
     const percentDiff = (diffPixels / (width * height)) * 100;
 
     const dir = path.dirname(diffPath);
@@ -41,7 +43,7 @@ export class ScreenshotUtils {
       diffPixels,
       percentDiff,
       passed: percentDiff <= threshold * 100,
-      diffImagePath: diffPath
+      diffImagePath: diffPath,
     };
   }
 }

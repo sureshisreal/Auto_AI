@@ -39,9 +39,12 @@ test.describe('Vibe Tests - Animation & Perceptual Diff', () => {
     await demoPage.takeScreenshot(currentPath);
 
     try {
-      execSync(`node tools/compare.js "${baselinePath}" "${currentPath}" "${diffPath}" --threshold=0.03`, {
-        stdio: 'inherit'
-      });
+      execSync(
+        `node src/core/tools/compare.js "${baselinePath}" "${currentPath}" "${diffPath}" --threshold=0.03`,
+        {
+          stdio: 'inherit',
+        }
+      );
     } catch (error) {
       if (!fs.existsSync(baselinePath)) {
         Logger.info('Baseline created, skipping assertion.');

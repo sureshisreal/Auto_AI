@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 3000;
-const projectRoot = path.resolve(__dirname, '..');
+const projectRoot = path.resolve(__dirname, '../../..');
 
 const mimeTypes = {
   '.html': 'text/html',
@@ -14,13 +14,13 @@ const mimeTypes = {
   '.jpg': 'image/jpg',
   '.gif': 'image/gif',
   '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon'
+  '.ico': 'image/x-icon',
 };
 
 const routes = {
   '/': 'demo/index.html',
   '/login': 'demo/login.html',
-  '/dashboard': 'demo/dashboard.html'
+  '/dashboard': 'demo/dashboard.html',
 };
 
 const server = http.createServer((req, res) => {

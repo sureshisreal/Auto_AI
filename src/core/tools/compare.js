@@ -7,10 +7,14 @@ const args = process.argv.slice(2);
 const baselinePath = args[0];
 const currentPath = args[1];
 const diffPath = args[2];
-const threshold = parseFloat(args.find(arg => arg.startsWith('--threshold='))?.split('=')[1] || '0.03');
+const threshold = parseFloat(
+  args.find((arg) => arg.startsWith('--threshold='))?.split('=')[1] || '0.03'
+);
 
 if (!baselinePath || !currentPath || !diffPath) {
-  console.error('Usage: node compare.js <baseline.png> <current.png> <diff.png> [--threshold=0.03]');
+  console.error(
+    'Usage: node compare.js <baseline.png> <current.png> <diff.png> [--threshold=0.03]'
+  );
   process.exit(1);
 }
 
@@ -32,7 +36,7 @@ const { width, height } = img1;
 const diff = new PNG({ width, height });
 
 const numDiffPixels = pixelmatch(img1.data, img2.data, diff.data, width, height, {
-  threshold: 0.1
+  threshold: 0.1,
 });
 
 const percentDiff = (numDiffPixels / (width * height)) * 100;
@@ -42,7 +46,9 @@ fs.writeFileSync(diffPath, PNG.sync.write(diff));
 console.log(`Pixel difference: ${numDiffPixels} pixels (${percentDiff.toFixed(2)}%)`);
 
 if (percentDiff > threshold * 100) {
-  console.error(`Threshold exceeded! Allowed: ${threshold * 100}%, Actual: ${percentDiff.toFixed(2)}%`);
+  console.error(
+    `Threshold exceeded! Allowed: ${threshold * 100}%, Actual: ${percentDiff.toFixed(2)}%`
+  );
   process.exit(1);
 } else {
   console.log('Comparison passed!');

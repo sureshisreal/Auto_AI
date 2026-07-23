@@ -43,6 +43,6 @@
       "@validations/*": ["src/core/shared/validations/*"]
     }
   },
-  "include": ["tests/**/*.ts", "tools/**/*.ts", "mcp/**/*.ts", "src/**/*.ts", "playwright.config.ts"],
+  "include": ["tests/**/*.ts", "mcp/**/*.ts", "src/**/*.ts", "playwright.config.ts"],
   "exclude": ["node_modules", "dist"]
 }
