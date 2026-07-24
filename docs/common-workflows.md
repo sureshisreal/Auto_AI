@@ -295,6 +295,37 @@ out to `npx playwright test`: `run_playwright_test` (single file, optional `proj
 
 ---
 
+## Response Archive
+Every chatmode agent (Planner, Generator, Healer, API Testing, Manual Testing) archives a timestamped
+copy of its full response under `docs/chatmode-responses/` on every invocation - not just the code/spec
+it generates. This is a chat log, not a report: nothing summarizes or aggregates it, and nothing deletes
+old entries, so it grows for as long as the agents are used.
+
+This isn't left to the model to hand-write - each chatmode's instructions (`.github/chatmodes/*.chatmode.md`)
+require it to run `src/core/tools/save-chatmode-response.js` via the `runCommands` tool after every
+reply, piping the response body in on stdin:
+```bash
+node src/core/tools/save-chatmode-response.js <chatmode> "<topic>" <<'RESPONSE_EOF'
+<response body>
+RESPONSE_EOF
+```
+The script (not the model) derives the slug, timestamp, and header, so the archive format can't drift
+between agents or get skipped due to formatting mistakes. It requires VS Code's chat mode dropdown to be
+set to **Agent** mode - Ask mode has no `runCommands`/`editFiles` tool access under any circumstances, so
+no instruction in the chatmode file can make it save anything in that mode.
+
+- **Filename**: `<chatmode>-<short-topic-slug>-<YYYYMMDDTHHMMSSZ>.md` (UTC timestamp), e.g.
+  `planner-wesendcv-test-plan-20260724T153000Z.md`
+- **Contents**: `# <Agent> Agent Response — <Topic>`, a `Timestamp: <ISO 8601 UTC>` line, then the
+  response body unchanged
+- **Why timestamped, not overwritten**: re-running the same agent on the same topic (a revised plan, a
+  second healing pass on a recurring failure) gets its own file, so the history of how a plan or a fix
+  evolved is preserved instead of clobbered
+- See `docs/chatmode-responses/planner-wesendcv-test-plan-20260724T153000Z.md` and
+  `docs/chatmode-responses/code-review-pages-folder-20260724T153001Z.md` for the format in practice
+
+---
+
 ## Skills vs Chatmodes vs Custom Instructions
 | Feature | Purpose | Location | When to Use |
 |---------|---------|----------|-------------|

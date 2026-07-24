@@ -15,6 +15,8 @@ import { TestLifecycleHooks } from '../../runtime/hooks/TestLifecycleHooks';
 import { PageEventListener } from '../../runtime/listeners/PageEventListener';
 import { StorageUtils } from '../../shared/utils/StorageUtils';
 import { URLS } from '../../data/testdata/urls.testdata';
+import { VisualRegressionUtils } from '../../shared/utils/VisualRegressionUtils';
+import { PerformanceUtils } from '../../shared/utils/PerformanceUtils';
 
 type Fixtures = {
   config: typeof Config;
@@ -31,6 +33,8 @@ type Fixtures = {
   validationHelpers: ValidationHelpers;
   testData: typeof TestDataProvider;
   authenticatedPage: Page;
+  visualRegressionUtils: VisualRegressionUtils;
+  performanceUtils: PerformanceUtils;
 };
 
 /**
@@ -120,12 +124,20 @@ export const test = base.extend<Fixtures>({
 
     const context = await browser.newContext({
       baseURL: Config.baseUrl,
-      storageState: StorageUtils.storageStatePath(stateFile)
+      storageState: StorageUtils.storageStatePath(stateFile),
     });
     const authenticatedPage = await context.newPage();
     await use(authenticatedPage);
     await context.close();
-  }
+  },
+
+  visualRegressionUtils: async ({ page }, use, testInfo) => {
+    await use(new VisualRegressionUtils(page, testInfo.project.name));
+  },
+
+  performanceUtils: async ({ page }, use) => {
+    await use(new PerformanceUtils(page));
+  },
 });
 
 export { expect } from '@playwright/test';

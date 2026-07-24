@@ -420,7 +420,7 @@
       <a class="nav-link" href="#page-objects">Page objects in depth</a>
       <a class="nav-link" href="#running-tests">Running tests</a>
       <a class="nav-link" href="#tutorial">Tutorial: write a script</a>
-      <a class="nav-link" href="#samples">13 sample scripts</a>
+      <a class="nav-link" href="#samples">8 sample scripts</a>
     </div>
     <div class="nav-group">
       <p class="nav-group-label">Reporting</p>
@@ -478,8 +478,8 @@
           <dd>Four config tiers (<code>qa</code>/<code>stage</code>/<code>uat</code>/<code>prod</code>) switched with one env var.</dd>
         </div>
         <div class="feature-row">
-          <dt>13 test disciplines</dt>
-          <dd>From unit tests to chaos tests, each with a working reference script.</dd>
+          <dt>8 sample scripts</dt>
+          <dd>Integration through visual regression, each a working reference for that reporting pattern.</dd>
         </div>
         <div class="feature-row">
           <dt>AI-assisted</dt>
@@ -687,7 +687,7 @@ logger/Logger.ts             Winston — daily file + error file + console (dev 
           <span class="mono-path">src/core/shared/</span>
         </div>
         <div class="core-group-body">
-          <p>Cross-cutting support with no opinion about pages, API, or data specifically. This is also where every <code>*Utils</code> static helper lives — 16 of them, plus the two purpose-built ones added alongside this guide: <code>AllureUtils</code> and <code>AccessibilityUtils</code>.</p>
+          <p>Cross-cutting support with no opinion about pages, API, or data specifically. This is also where every <code>*Utils</code> static helper lives — 20 of them, including four purpose-built ones added alongside this guide: <code>AllureUtils</code>, <code>AccessibilityUtils</code>, <code>PerformanceUtils</code>, and <code>VisualRegressionUtils</code>.</p>
           <pre><code>validations/ValidationHelpers.ts   verifyText, verifyUrl, verifyElementVisible…
 exceptions/                        APIError, ConfigurationError, DatabaseError,
                                     ElementError, ValidationError, FrameworkError
@@ -696,11 +696,14 @@ helpers/RetryHelper.ts, ReportAttachmentHelper.ts
 interfaces/IConfig.ts
 utils/AllureUtils.ts               step/steps/attachScreenshot/attachVideo/setCategory
 utils/AccessibilityUtils.ts        runAxeScan(page) — shared axe-core defaults
+utils/PerformanceUtils.ts          Lighthouse audit (lazy-loaded ESM import) + page-load metrics
+utils/VisualRegressionUtils.ts     per-project-namespaced screenshot capture/compare fixture
 utils/BrowserUtils.ts              builds the 5 Playwright projects
 utils/ScreenshotUtils.ts, DateUtils, JsonUtils, CSVUtils, ExcelUtils, FileUtils,
      NetworkUtils, RandomDataUtils, StorageUtils, DownloadUtils, UploadUtils,
      EncryptionUtils, ZipUtils, APIUtils, WaitUtils
-tools/dev-server.js, compare.js    the demo server + visual-diff CLI (see below)</code></pre>
+tools/dev-server.js, compare.js, save-chatmode-response.js   demo server, visual-diff CLI,
+                                                              chatmode response archiver (see below)</code></pre>
         </div>
       </div>
 
@@ -988,29 +991,24 @@ test.describe('Dashboard Save Confirmation', () =&gt; {
     <section id="samples" class="col-wide">
       <div class="section-head">
         <p class="section-num">09</p>
-        <h2>13 sample scripts, one per discipline</h2>
-        <p class="section-dek"><code>tests/zsampleScript/</code> — a working, passing reference for every kind of test this framework supports.</p>
+        <h2>8 sample scripts, real reporting patterns</h2>
+        <p class="section-dek"><code>tests/zsampleScript/</code> — a working, passing reference for the framework's core test disciplines.</p>
       </div>
 
       <p>Each file is a real spec, not pseudo-code — it runs against the demo app as part of a plain <code>npm test</code>, and demonstrates the pattern in miniature.</p>
 
-      <pre><code>npx playwright test tests/zsampleScript                               # all 13
+      <pre><code>npx playwright test tests/zsampleScript                               # the whole folder
 npx playwright test tests/zsampleScript/security-tests.sample.spec.ts  # one category</code></pre>
 
       <div class="cat-grid">
-        <div class="cat-card"><div class="cat-card-top"><h4>Unit</h4><span class="cat-num">01</span></div><p class="cat-focus">Pure functions, no browser — parsing, validation, timeout math.</p><p class="cat-file">unit-tests.sample.spec.ts</p></div>
-        <div class="cat-card"><div class="cat-card-top"><h4>Integration</h4><span class="cat-num">02</span></div><p class="cat-focus">Multi-step workflows across components.</p><p class="cat-file">integration-tests.sample.spec.ts</p></div>
-        <div class="cat-card"><div class="cat-card-top"><h4>Performance</h4><span class="cat-num">03</span></div><p class="cat-focus">Load time, First Contentful Paint, resource count.</p><p class="cat-file">performance-tests.sample.spec.ts</p></div>
-        <div class="cat-card"><div class="cat-card-top"><h4>Security</h4><span class="cat-num">04</span></div><p class="cat-focus">Blocked auth, XSS injection, header validation.</p><p class="cat-file">security-tests.sample.spec.ts</p></div>
-        <div class="cat-card"><div class="cat-card-top"><h4>Validation</h4><span class="cat-num">05</span></div><p class="cat-focus">Format checks, length limits, malicious patterns.</p><p class="cat-file">validation-tests.sample.spec.ts</p></div>
-        <div class="cat-card"><div class="cat-card-top"><h4>Mock</h4><span class="cat-num">06</span></div><p class="cat-focus">Stubbed failures, slow responses, dead services.</p><p class="cat-file">mock-tests.sample.spec.ts</p></div>
-        <div class="cat-card"><div class="cat-card-top"><h4>Interop</h4><span class="cat-num">07</span></div><p class="cat-focus">CSS/ES6 feature support, viewport, touch.</p><p class="cat-file">interop-tests.sample.spec.ts</p></div>
-        <div class="cat-card"><div class="cat-card-top"><h4>Accessibility</h4><span class="cat-num">08</span></div><p class="cat-focus">Axe scan, keyboard-only nav, focus order.</p><p class="cat-file">accessibility-tests.sample.spec.ts</p></div>
-        <div class="cat-card"><div class="cat-card-top"><h4>Resilience</h4><span class="cat-num">09</span></div><p class="cat-focus">Asset failures, partial outages, error states.</p><p class="cat-file">resilience-tests.sample.spec.ts</p></div>
-        <div class="cat-card"><div class="cat-card-top"><h4>Network-resilience</h4><span class="cat-num">10</span></div><p class="cat-focus">Offline, throttled, dropped connections.</p><p class="cat-file">network-resilience-tests.sample.spec.ts</p></div>
-        <div class="cat-card"><div class="cat-card-top"><h4>i18n</h4><span class="cat-num">11</span></div><p class="cat-focus">Language attributes, direction, pluralization.</p><p class="cat-file">i18n-tests.sample.spec.ts</p></div>
-        <div class="cat-card"><div class="cat-card-top"><h4>E2E</h4><span class="cat-num">12</span></div><p class="cat-focus">Full critical-path journey, entirely via POM.</p><p class="cat-file">e2e-tests.sample.spec.ts</p></div>
-        <div class="cat-card"><div class="cat-card-top"><h4>Chaos</h4><span class="cat-num">13</span></div><p class="cat-focus">Concurrent users, partial failures, random delays.</p><p class="cat-file">chaos-tests.sample.spec.ts</p></div>
+        <div class="cat-card"><div class="cat-card-top"><h4>Integration</h4><span class="cat-num">01</span></div><p class="cat-focus">Multi-step workflows across components.</p><p class="cat-file">integration-tests.sample.spec.ts</p></div>
+        <div class="cat-card"><div class="cat-card-top"><h4>Performance</h4><span class="cat-num">02</span></div><p class="cat-focus">Load time, First Contentful Paint, resource count.</p><p class="cat-file">performance-tests.sample.spec.ts</p></div>
+        <div class="cat-card"><div class="cat-card-top"><h4>Security</h4><span class="cat-num">03</span></div><p class="cat-focus">Blocked auth, XSS injection, header validation.</p><p class="cat-file">security-tests.sample.spec.ts</p></div>
+        <div class="cat-card"><div class="cat-card-top"><h4>Validation</h4><span class="cat-num">04</span></div><p class="cat-focus">Format checks, length limits, malicious patterns.</p><p class="cat-file">validation-tests.sample.spec.ts</p></div>
+        <div class="cat-card"><div class="cat-card-top"><h4>Mock</h4><span class="cat-num">05</span></div><p class="cat-focus">Stubbed failures, slow responses, dead services.</p><p class="cat-file">mock-tests.sample.spec.ts</p></div>
+        <div class="cat-card"><div class="cat-card-top"><h4>Accessibility</h4><span class="cat-num">06</span></div><p class="cat-focus">Axe scan, keyboard-only nav, focus order.</p><p class="cat-file">accessibility-tests.sample.spec.ts</p></div>
+        <div class="cat-card"><div class="cat-card-top"><h4>E2E</h4><span class="cat-num">07</span></div><p class="cat-focus">Full critical-path journey, entirely via POM.</p><p class="cat-file">e2e-tests.sample.spec.ts</p></div>
+        <div class="cat-card"><div class="cat-card-top"><h4>Visual regression</h4><span class="cat-num">08</span></div><p class="cat-focus">Per-project-baseline pixel diffing plus page-load metrics.</p><p class="cat-file">visual-regression.sample.spec.ts</p></div>
       </div>
     </section>
 
@@ -1122,11 +1120,21 @@ npm run allure:open</code></pre>
       <div class="section-head">
         <p class="section-num">12</p>
         <h2>Visual regression</h2>
-        <p class="section-dek">Pixel-level diffing, with automatic baseline bootstrap.</p>
+        <p class="section-dek">Pixel-level diffing, namespaced per browser project.</p>
       </div>
       <p><code>src/core/tools/compare.js</code> diffs two PNGs with <code>pixelmatch</code> and fails past a configurable threshold. If no baseline exists yet, it creates one from the current screenshot and exits clean — the first run is never a false failure.</p>
       <pre><code>npm run compare -- baseline.png current.png diff.png --threshold=0.03</code></pre>
       <p>The same technique is also available as a typed, importable method — <code>ScreenshotUtils.compare()</code> in <code>src/core/shared/utils/</code> — for specs that want the check without shelling out to a script.</p>
+
+      <p>For a fixture-driven version wired straight into a spec, use the <code>visualRegressionUtils</code> fixture (<code>VisualRegressionUtils</code>, <code>src/core/shared/utils/VisualRegressionUtils.ts</code>):</p>
+      <pre><code>test('Demo Page Visual Test', async ({ demoPage, visualRegressionUtils }) =&gt; {
+  await demoPage.goToDemo();
+  const matches = await visualRegressionUtils.checkVisualRegression('demo-page', { threshold: 0.1 });
+  expect(matches).toBeTruthy();
+});</code></pre>
+      <div class="callout warn">
+        <p><strong>Baselines are namespaced per browser project</strong> — <code>reports/visual/{baseline,actual,diff}/&lt;project&gt;/</code>, keyed off <code>testInfo.project.name</code>. Without this, chromium/firefox/webkit/Mobile Chrome/Mobile Safari would all race to write and compare against one shared baseline file, and every engine except whichever ran first would fail permanently on real (and expected) cross-engine rendering differences.</p>
+      </div>
     </section>
 
     <!-- ============ AI AGENTS ============ -->
@@ -1155,9 +1163,14 @@ npm run allure:open</code></pre>
       <h3>Activating a chatmode in VS Code</h3>
       <ol class="steps">
         <li data-n="1"><strong>Open Copilot Chat</strong><p><code>Cmd/Ctrl+Alt+I</code></p></li>
-        <li data-n="2"><strong>Pick from the dropdown</strong><p>Or skip it and prefix your message directly: <code>@healer Fix the failing test in tests/wesendcv.spec.ts</code></p></li>
-        <li data-n="3"><strong>Skills need nothing</strong><p>Just ask a normal question — "review this spec for POM compliance" loads the Code Review skill automatically.</p></li>
+        <li data-n="2"><strong>Switch the mode dropdown to Agent</strong><p>Chatmodes only get file-write/command-execution tools in Agent mode — from Ask mode a chatmode can talk but can't create files or run tests, regardless of what its instructions say.</p></li>
+        <li data-n="3"><strong>Pick from the dropdown</strong><p>Or skip it and prefix your message directly: <code>@healer Fix the failing test in tests/wesendcv/wesendcv.spec.ts</code></p></li>
+        <li data-n="4"><strong>Skills need nothing</strong><p>Just ask a normal question — "review this spec for POM compliance" loads the Code Review skill automatically.</p></li>
       </ol>
+
+      <div class="callout">
+        <p><strong>Every response is archived.</strong> Each chatmode runs <code>src/core/tools/save-chatmode-response.js</code> (via the terminal tool) after every reply, saving a timestamped copy to <code>docs/chatmode-responses/&lt;chatmode&gt;-&lt;topic&gt;-&lt;YYYYMMDDTHHMMSSZ&gt;.md</code> — a plan or diagnosis survives after the chat session ends, and a revision gets its own file instead of overwriting the last one.</p>
+      </div>
     </section>
 
     <!-- ============ MCP ============ -->
@@ -1176,7 +1189,7 @@ npm run allure:open</code></pre>
           <tbody>
             <tr><td><code>run_playwright_test</code></td><td>testFile, project?, headed?</td><td>Runs one spec file</td></tr>
             <tr><td><code>run_all_tests</code></td><td>—</td><td>Runs the full suite</td></tr>
-            <tr><td><code>get_test_report</code></td><td>—</td><td>Lists <code>playwright-report/</code> contents</td></tr>
+            <tr><td><code>get_test_report</code></td><td>—</td><td>Lists <code>reports/html/</code> contents</td></tr>
           </tbody>
         </table>
       </div>

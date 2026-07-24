@@ -32,12 +32,12 @@ chatmode" to switch into, code review is a skill (see table below).
 ### Example Prompts
 | Goal | Example Prompt |
 |------|----------------|
-| Fix a failing test | `Fix the failing smoke test in tests/wesendcv.spec.ts` |
+| Fix a failing test | `Fix the failing smoke test in tests/wesendcv/wesendcv.spec.ts` |
 | Generate a test plan | `Create a test plan for https://wesendcv.com` |
 | Write a test spec | `Generate tests from specs/plan.md` |
 | Create API/contract tests | `Scaffold API tests for the /api/jobs endpoint` |
 | Get a manual test checklist | `Give me a manual test checklist for the login page` |
-| Review test code quality | `Review tests/wesendcv.spec.ts for POM compliance and security` |
+| Review test code quality | `Review tests/wesendcv/wesendcv.spec.ts for POM compliance and security` |
 
 > **Tip**: All agents follow the POM conventions in this repo — they write page objects to `src/pages/`,
 > components to `src/core/ui/components/`, and test data to `src/core/data/testdata/` automatically!
@@ -46,6 +46,8 @@ chatmode" to switch into, code review is a skill (see table below).
 ### Step-by-Step Guide
 #### Via Copilot Chat Panel:
 - Press Ctrl+Alt+I (Windows/Linux) or Cmd+Alt+I (macOS) to open Copilot Chat
+- Switch the mode dropdown to **Agent** - chatmodes only get file-write/command-execution tools in Agent
+  mode; from Ask mode a chatmode can talk but can't create files or run tests, no matter what it's asked
 - Look for the agent/chatmode selector dropdown at the top of the chat panel
 - Click the dropdown to see all available chatmodes
 - Select the chatmode you want
@@ -60,14 +62,21 @@ chatmode" to switch into, code review is a skill (see table below).
 #### Quick Mention Syntax:
 You can also prefix your message with @ to invoke an agent:
 ```
-@healer Fix the failing test in tests/wesendcv.spec.ts
+@healer Fix the failing test in tests/wesendcv/wesendcv.spec.ts
 @planner Create a test plan for https://example.com
 @generator Write a Playwright test spec for the WeSendCV login page
 @api-testing Create API tests for /api/jobs
 @manual-testing Give a manual testing checklist for the login page
 ```
-Skills don't get an `@mention` - just ask a normal question ("review tests/wesendcv.spec.ts for POM
+Skills don't get an `@mention` - just ask a normal question ("review tests/wesendcv/wesendcv.spec.ts for POM
 compliance") and Copilot loads the matching skill automatically.
+
+### Response Archive
+Every chatmode saves a timestamped copy of its full response to `docs/chatmode-responses/` after each
+reply, via `src/core/tools/save-chatmode-response.js` (piped a topic + the response body on stdin
+through the `runCommands` tool) - not left to the model to hand-write, so the naming/format can't drift.
+See [Response Archive](common-workflows.md#response-archive) in `docs/common-workflows.md` for the exact
+mechanism and filename convention.
 
 ## 🩺 Healer Agent — Auto-fix Failing Tests
 ### When to use
@@ -82,7 +91,7 @@ A test is failing and you want Copilot to diagnose and fix it without manual int
 - If unable to fix, marks it `test.fixme()` with a comment
 
 ### Example Workflow
-1. User: "The smoke test in tests/wesendcv.spec.ts is failing on CI."
+1. User: "The smoke test in tests/wesendcv/wesendcv.spec.ts is failing on CI."
 2. Healer:
    - Finds failure: Timeout waiting for 'text=Sign Up'
    - Updates selector in WeSendCVPage.ts
@@ -126,8 +135,10 @@ You need a manual test checklist.
 Automatically, whenever you're debugging a failing test - no dropdown switch or `@mention` needed.
 
 ### What it does
-- Walks a fixed sequence: check artifacts in `test-results/`, review selectors/waits/assertions, re-run
-  `--headed`, re-run `--debug`, check network logs, validate the Page Object Model
+- Walks a fixed sequence: check artifacts in `reports/html` (`npx playwright show-report reports/html`),
+  check the Allure step timeline if the spec uses `AllureUtils` (`npm run allurereport`), review
+  selectors/waits/assertions, re-run `--headed`, re-run `--debug`, check network logs
+  (`reports/logs/app-<date>.log`), validate the Page Object Model
 - Points you at the same commands used elsewhere in this repo: `npx playwright test <spec> --debug`,
   `npx playwright test <spec> --headed --project=chromium`
 

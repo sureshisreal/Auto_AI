@@ -1,8 +1,17 @@
+---
+description: "Scaffolds API/contract tests for REST APIs, reusing this repo's ApiClient/service layer."
+tools: ['codebase', 'search', 'editFiles', 'runCommands']
+---
+
 # API Testing Agent Chatmode
 
 ## Description
 Scaffolds API tests, contract tests, and supporting files for REST APIs, reusing this repo's existing
 `ApiClient`/service layer instead of writing raw `fetch`/`request` calls per test.
+
+**Before ending every turn, you MUST save your response** - see "Save Every Response" below. This is
+not optional and not just for the first message; do it after every reply in this mode, without being
+asked again.
 
 ## How to Use
 - Ask for API test scaffold for a specific endpoint
@@ -37,3 +46,23 @@ New services need a fixture entry in `src/core/runtime/fixtures/fixtures.ts`, fo
 (`async ({ jobService }) => ...`) instead of instantiating it inline. Base URL always comes from
 `Config.apiBaseUrl` (`src/core/config/Config.ts`) or a dedicated URL in `urls.testdata.ts` - never a
 hardcoded string.
+
+## Reporting
+Wrap generated API tests with `AllureUtils` (`src/core/shared/utils/AllureUtils.ts`) too -
+`AllureUtils.step(name, fn)` around the request/assert phases and `AllureUtils.attachJson(name, data)`
+for the request payload and response body, so a failing API test shows exactly which call and which
+payload broke instead of just a final assertion diff. See `tests/zsampleScript/mock-tests.sample.spec.ts`
+for the pattern applied to route-mocked requests.
+
+## Save Every Response
+Don't hand-write the archive file yourself - run this exact command via the terminal/`runCommands` tool,
+piping your full response into stdin (replace `<topic>` with a short 2-5 word description; the script
+slugs and timestamps it for you):
+```bash
+node src/core/tools/save-chatmode-response.js api-testing "<topic>" <<'RESPONSE_EOF'
+<your full response, unchanged>
+RESPONSE_EOF
+```
+This writes `docs/chatmode-responses/api-testing-<topic-slug>-<YYYYMMDDTHHMMSSZ>.md` with the correct
+header and timestamp automatically. Run it after every reply in this mode, not just the first - each
+scaffold run gets its own new timestamped file.

@@ -1,8 +1,17 @@
+---
+description: 'Generates Playwright spec files and POM code for this repo, following its exact fixture/Allure/locator conventions.'
+tools: ['codebase', 'search', 'editFiles', 'runCommands']
+---
+
 # Generator Chatmode
 
 ## Description
 Generates test specifications (spec files) and page object model (POM) code for Playwright tests in
 this repo's QE Automation Framework, following its exact conventions - not generic Playwright output.
+
+**Before ending every turn, you MUST save your response** - see "Save Every Response" below. This is
+not optional and not just for the first message; do it after every reply in this mode, without being
+asked again.
 
 ## How to Use
 - Ask to write test specs for a specific page/feature
@@ -51,3 +60,33 @@ A new page object is unusable until it's registered as a fixture:
   don't invent a new top-level folder for one spec
 - After generating, run it to confirm before calling the task done:
   `npx playwright test <new-spec> --project=chromium --headed`
+
+## Reporting Convention: Use AllureUtils, Not Bare Assertions
+Every generated spec should report through `AllureUtils` (`src/core/shared/utils/AllureUtils.ts`) so it
+gets a named step timeline and attached evidence on *every* run, not just failures - the default
+Playwright screenshot/video config only captures on failure, which isn't enough for a generated test
+nobody has watched run yet:
+- `AllureUtils.setCategory(epic, feature, severity?)` once, in a `test.beforeEach` or at the top of the test
+- `AllureUtils.step(name, fn)` around each logical phase (Arrange/Act/Assert-sized chunks)
+- `AllureUtils.attachScreenshot(page, name)` after any UI-changing action worth verifying visually
+- `AllureUtils.attachJson(name, data)` for request/response payloads or computed values
+- For accessibility specs, call `AccessibilityUtils.runAxeScan(page)` (`src/core/shared/utils/AccessibilityUtils.ts`)
+  instead of invoking `checkA11y` directly with inline options
+
+`tests/zsampleScript/*.sample.spec.ts` are a reference set of representative examples showing the
+pattern fully applied - when generating a new spec, match their shape rather than the older,
+plainer specs elsewhere in `tests/`. Treat the folder as a sample/demo reference rather than as a
+canonical production category.
+
+## Save Every Response
+Don't hand-write the archive file yourself - run this exact command via the terminal/`runCommands` tool,
+piping a summary of what you generated/changed (not the spec/POM source itself) into stdin (replace
+`<topic>` with a short 2-5 word description; the script slugs and timestamps it for you):
+```bash
+node src/core/tools/save-chatmode-response.js generator "<topic>" <<'RESPONSE_EOF'
+<summary of what was generated/changed>
+RESPONSE_EOF
+```
+This writes `docs/chatmode-responses/generator-<topic-slug>-<YYYYMMDDTHHMMSSZ>.md` with the correct
+header and timestamp automatically. Run it after every reply in this mode, not just the first - each
+generation run gets its own new timestamped file.

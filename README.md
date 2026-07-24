@@ -6,7 +6,9 @@ An enterprise-grade, TypeScript Playwright Test framework featuring:
 - **Environment-Driven Config**: Multi-environment support via `.env.qa`, `.env.stage`, `.env.uat`, `.env.prod`
 - **Advanced Reporting**: Playwright HTML, Allure, JUnit, and custom reporting with screenshots/videos/traces on failure
 - **Winston Logging**: Daily rotating logs, console output (dev only), and structured logging
-- **AI-Powered Development**: Built-in chatmodes for planning, generation, healing, and review (see [docs/ai-agents.md](file:///Users/sureshbabuisreal/Documents/PersonalGithub/Playwright_aI/docs/ai-agents.md))
+- **AI-Powered Development**: 5 chatmodes (Planner, Generator, Healer, API Testing, Manual Testing) + 2
+  auto-loaded skills (test debugging, code review), an MCP server for programmatic agent access, and a
+  timestamped archive of every agent response (see [AI Agents, Chatmodes & Skills](#ai-agents-chatmodes--skills))
 
 ## Table of Contents
 - [Architecture](#architecture)
@@ -29,6 +31,7 @@ An enterprise-grade, TypeScript Playwright Test framework featuring:
   - [How to Add a New Test](#how-to-add-a-new-test)
   - [How to Add a New Environment](#how-to-add-a-new-environment)
   - [How to Use the API Client](#how-to-use-the-api-client)
+- [AI Agents, Chatmodes & Skills](#ai-agents-chatmodes--skills)
 - [Reporting & Logging](#reporting--logging)
 - [Coding Standards](#coding-standards)
 - [CI/CD](#cicd)
@@ -147,21 +150,26 @@ This will automatically start `src/core/tools/dev-server.js` and serve the `demo
 ### Fixtures
 Fixtures are the only way tests should get access to page objects, services, and helpers! No manual `new` keyword in tests!
 
-**Sample Fixture (`tests/fixtures/page.fixture.ts`)**:
+**All fixtures live in one file (`src/core/runtime/fixtures/fixtures.ts`)**:
 ```typescript
 import { test as base } from '@playwright/test';
-import { LoginPage } from '@pages/auth/login.page';
+import { LoginPage } from '../../../pages/LoginPage';
 
-type PageFixtures = {
+type Fixtures = {
   loginPage: LoginPage;
+  // ...every other page, service, and helper the suite uses
 };
 
-export const test = base.extend<PageFixtures>({
+export const test = base.extend<Fixtures>({
   loginPage: async ({ page }, use) => {
     await use(new LoginPage(page));
   },
 });
+
+export { expect } from '@playwright/test';
 ```
+Every spec imports `{ test, expect }` from this file - never from `@playwright/test` directly - and
+destructures the fixtures it needs: `async ({ loginPage, validationHelpers }) => { ... }`.
 
 ---
 
@@ -178,35 +186,30 @@ export const test = base.extend<PageFixtures>({
 | `npm run test:e2e` | End-to-end user flows |
 
 ### Sample Scripts (`tests/zsampleScript/`)
-Thirteen reference specs, one per testing category this framework supports, each a small, real,
-passing example of that category's technique - a "how do I write this kind of test here" reference,
-not part of the required smoke/sanity/regression/e2e/api suites.
+A small reference area containing representative Playwright examples for the repo's common test
+patterns. These are intentionally sample/demo-style artifacts, not part of the required
+smoke/sanity/regression/e2e/api suites.
 
 ```bash
-npx playwright test tests/zsampleScript                              # all 13 categories
+npx playwright test tests/zsampleScript                              # run the sample folder
 npx playwright test tests/zsampleScript --project=chromium           # one browser only
-npx playwright test tests/zsampleScript/security-tests.sample.spec.ts # a single category
+npx playwright test tests/zsampleScript/security-tests.sample.spec.ts # a single sample
 ```
 
 | File | Category |
 |---|---|
-| `unit-tests.sample.spec.ts` | Unit - individual functions/utilities, no browser |
+| `accessibility-tests.sample.spec.ts` | Accessibility - axe scan, keyboard nav, focus order |
+| `e2e-tests.sample.spec.ts` | E2E - full critical-path journey via POM |
 | `integration-tests.sample.spec.ts` | Integration - multi-step workflows across components |
+| `mock-tests.sample.spec.ts` | Mock - stubbed/aborted responses, simulated failures |
 | `performance-tests.sample.spec.ts` | Performance - load time, FCP, resource count |
 | `security-tests.sample.spec.ts` | Security - auth, XSS prevention, header validation |
 | `validation-tests.sample.spec.ts` | Validation - format, length, malicious-pattern input |
-| `mock-tests.sample.spec.ts` | Mock - stubbed/aborted responses, simulated failures |
-| `interop-tests.sample.spec.ts` | Interop - CSS/ES6 feature support, viewport |
-| `accessibility-tests.sample.spec.ts` | Accessibility - axe scan, keyboard nav, focus order |
-| `resilience-tests.sample.spec.ts` | Resilience - asset failures, partial outages |
-| `network-resilience-tests.sample.spec.ts` | Network-resilience - offline, slow, dropped connections |
-| `i18n-tests.sample.spec.ts` | i18n - language attributes, direction, pluralization |
-| `e2e-tests.sample.spec.ts` | E2E - full critical-path journey via POM |
-| `chaos-tests.sample.spec.ts` | Chaos - concurrency, partial failures, random delays |
+| `visual-regression.sample.spec.ts` | Visual regression / page-load metrics reference |
 
-These run against the bundled `demo/` app and follow every framework convention (fixtures import,
-POM, `ValidationHelpers`, `Config`, builders) - since `testDir` covers all of `tests/`, they're also
-included automatically in a plain `npm test`.
+These examples run against the bundled `demo/` app and follow the current framework conventions
+(fixtures import, POM, `ValidationHelpers`, `Config`, builders). They are best treated as a
+reference set for how to structure new specs rather than as a canonical production test suite.
 
 Every sample also demonstrates rich Allure reporting via `allure-js-commons` (a direct devDependency,
 matched to `allure-playwright`'s version) rather than relying only on Playwright's own
@@ -243,15 +246,16 @@ Regenerate the report after any test run to see this (`npm run allurereport`) - 
 ## How-To Guides
 
 ### How to Add a New Page Object
-1. Create a new file in `src/pages/<feature>/`:
+1. Create a new flat file directly in `src/pages/` (matches `LoginPage.ts`, `DashboardPage.ts`,
+   `DemoPage.ts`, `WeSendCVPage.ts` - no per-feature subfolders):
    ```typescript
-   // src/pages/checkout/checkout.page.ts
+   // src/pages/CheckoutPage.ts
    import { Page, Locator } from '@playwright/test';
-   import { BasePage } from '@core/base.page';
+   import { BasePage } from '../core/ui/base/BasePage';
 
    export class CheckoutPage extends BasePage {
-     private cartItem: Locator;
-     private checkoutButton: Locator;
+     private readonly cartItem: Locator;
+     private readonly checkoutButton: Locator;
 
      constructor(page: Page) {
        super(page);
@@ -259,19 +263,30 @@ Regenerate the report after any test run to see this (`npm run allurereport`) - 
        this.checkoutButton = this.page.getByRole('button', { name: 'Checkout' });
      }
 
-     async navigate(): Promise<void> {
+     public async navigate(): Promise<void> {
        await this.navigateTo('/checkout');
      }
 
-     async clickCheckout(): Promise<void> {
+     public async clickCheckout(): Promise<void> {
        await this.click(this.checkoutButton);
      }
    }
    ```
-2. Add a fixture for it in `tests/fixtures/page.fixture.ts`
-3. Use it in a test:
+   Extend `BasePage` for every raw Playwright action (click/fill/wait/navigate) - never re-implement one
+   it already provides. Locators: `getByRole`/`getByLabel`/`getByPlaceholder`/`getByText`/`getByTestId`
+   only, never CSS or XPath. Zero `expect(...)` calls in a page object - assertions belong in the test
+   or `ValidationHelpers`.
+2. Register it as a fixture in `src/core/runtime/fixtures/fixtures.ts` (add to both the `Fixtures` type
+   and the `test.extend<Fixtures>({...})` object):
    ```typescript
-   import { test, expect } from '@tests/fixtures/test.fixture';
+   checkoutPage: async ({ page }, use) => {
+     await use(new CheckoutPage(page));
+   },
+   ```
+3. Use it in a test - import `{ test, expect }` from the fixtures file (path depends on the spec's depth
+   under `tests/`), never `@playwright/test` directly, and never `new CheckoutPage(page)` inline:
+   ```typescript
+   import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
 
    test('checkout flow', async ({ checkoutPage }) => {
      await checkoutPage.navigate();
@@ -280,35 +295,43 @@ Regenerate the report after any test run to see this (`npm run allurereport`) - 
    ```
 
 ### How to Add a New Component
-Components are reusable UI patterns across pages!
-1. Create `src/pages/components/modal.component.ts`:
+Components are reusable UI patterns shared across pages (see `HeaderComponent`, `TableComponent`,
+`Pagination`, `ToastMessage`, `CommonDialog`, `NavigationMenu` in `src/core/ui/components/`)!
+1. Create `src/core/ui/components/ModalComponent.ts`, extending `BaseComponent` and scoped to a root
+   `Locator` (not a page, and not a raw CSS selector string):
    ```typescript
-   import { Page, Locator } from '@playwright/test';
-   import { BaseComponent } from '@core/base.component';
+   import { Locator } from '@playwright/test';
+   import { BaseComponent } from './BaseComponent';
 
    export class ModalComponent extends BaseComponent {
-     private confirmButton: Locator;
+     private readonly confirmButton: Locator;
 
-     constructor(page: Page, rootSelector: string) {
-       super(page, rootSelector);
+     constructor(page: import('@playwright/test').Page, root: Locator) {
+       super(page, root);
        this.confirmButton = this.rootLocator.getByRole('button', { name: 'Confirm' });
      }
 
-     async confirm(): Promise<void> {
-       await this.click(this.confirmButton);
+     public async confirm(): Promise<void> {
+       await this.confirmButton.click();
      }
    }
    ```
-2. Use it in a page object:
+2. Compose it inside a page object (see `DashboardPage.ts` for the canonical example of wiring up
+   multiple components):
    ```typescript
-   this.modal = new ModalComponent(this.page, '[data-testid="checkout-modal"]');
+   this.modal = new ModalComponent(page, page.getByTestId('checkout-modal'));
    ```
 
 ### How to Add a New Test
-1. Create a new test in the appropriate `tests/<category>/` folder
-2. Use fixtures for all dependencies:
+1. Place the spec in the matching `tests/<category>/` folder (see [Test Categories](#test-categories) -
+   don't invent a new top-level folder for one spec)
+2. Use fixtures for every dependency, keep the body Arrange/Act/Assert-sized, and report through
+   `AllureUtils` (`src/core/shared/utils/AllureUtils.ts`) so a failure shows a step timeline and
+   evidence, not just a pass/fail line - see [Sample Scripts](#sample-scripts-testszsamplescript) for
+   the fully-worked pattern:
    ```typescript
-   import { test, expect } from '@tests/fixtures/test.fixture';
+   import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
+   import { AllureUtils } from '../../src/core/shared/utils/AllureUtils';
 
    test.describe('Login', () => {
      test('valid credentials should login successfully', async ({
@@ -316,45 +339,89 @@ Components are reusable UI patterns across pages!
        validationHelpers,
        config,
      }) => {
-       // Arrange
-       await loginPage.navigate();
+       await AllureUtils.step('Log in with valid credentials', async () => {
+         await loginPage.navigate();
+         await loginPage.login(config.adminUsername, config.adminPassword);
+       });
 
-       // Act
-       await loginPage.login(config.adminUsername, config.adminPassword);
-
-       // Assert
-       await validationHelpers.verifyUrl(/\/dashboard/);
+       await AllureUtils.step('Verify redirect to the dashboard', async () => {
+         await validationHelpers.verifyUrl(/\/dashboard/);
+       });
      });
    });
    ```
 
 ### How to Add a New Environment
-1. Create a new `.env.<name>` file (e.g., `.env.preprod`)
-2. (Optional) Add the environment to `Environment` enum in `src/test-data/constants/Environment.ts`
+1. Create a new `.env.<name>` file (mirrors `.env.qa`/`.env.stage`/`.env.uat`/`.env.prod`)
+2. Add any new keys to `EnvKeys` (`src/core/config/constants/EnvKeys.ts`) and read them via the
+   `Config` singleton (`src/core/config/Config.ts`) - never `process.env.X` inline in a test or page
 3. Run with `ENVIRONMENT=<name> npm test`
 
 ### How to Use the API Client
-1. Import from `src/api/clients/` or use the `apiClient` fixture:
-   ```typescript
-   import { test, expect } from '@tests/fixtures/test.fixture';
+Use the `apiClient` fixture (backed by `src/core/api/ApiClient.ts`) rather than a raw
+`request.get(...)` - for a whole API domain, wrap it in a service class instead (see
+`AuthService`/`JobService` in `src/core/api/services/`):
+```typescript
+import { test, expect } from '../../src/core/runtime/fixtures/fixtures';
 
-   test('get users list', async ({ apiClient }) => {
-     const response = await apiClient.get('/users');
-     await apiClient.expectStatus(response, 200);
-     const users = await apiClient.getJson<User[]>(response);
-     expect(users.length).toBeGreaterThan(0);
-   });
-   ```
+test('get users list', async ({ apiClient }) => {
+  const response = await apiClient.get('/users');
+  await apiClient.expectStatus(response, 200);
+  const users = await apiClient.getJson<User[]>(response);
+  expect(users.length).toBeGreaterThan(0);
+});
+```
+
+---
+
+## AI Agents, Chatmodes & Skills
+This repo ships 5 GitHub Copilot chatmodes, 2 auto-loaded skills, and an MCP server, all tuned to this
+repo's actual conventions rather than generic Playwright advice. Full usage steps, example prompts, and
+workflows live in `docs/`; this section is the quick-reference summary.
+
+| Type | Name | File | Best for |
+|------|------|------|----------|
+| Chatmode | 📋 Planner | `.github/chatmodes/planner.chatmode.md` | Turn a page/feature into a scenario-mapped test plan |
+| Chatmode | ⚙️ Generator | `.github/chatmodes/generator.chatmode.md` | Write specs + page objects following this repo's exact conventions |
+| Chatmode | 🩺 Healer | `.github/chatmodes/healer.chatmode.md` | Diagnose and fix a failing test using this repo's own failure artifacts |
+| Chatmode | 🔌 API Testing | `.github/chatmodes/api-testing.chatmode.md` | Scaffold API/Pact contract tests |
+| Chatmode | 📝 Manual Testing | `.github/chatmodes/manual-testing.chatmode.md` | Structured manual QA checklists |
+| Skill (auto-loads) | 🛠️ Test Debugging | `.github/skills/playwright-test-debugging/SKILL.md` | Loads automatically while debugging a failing test |
+| Skill (auto-loads) | 📐 Code Review | `.github/skills/code-review/SKILL.md` | Loads automatically when asked to review/audit test code |
+
+**Activating a chatmode in VS Code**: open Copilot Chat (`Cmd+Alt+I` / `Ctrl+Alt+I`), switch the mode
+dropdown to **Agent**, then either pick the chatmode from the mode selector or prefix your message with
+`@<name>` (e.g. `@planner Create a test plan for the CV upload feature`). Chatmodes only get file-write
+and command-execution tools in **Agent mode** - Ask mode has no such tool access, so a chatmode can plan
+but can't create files or run tests from Ask mode. Skills need no activation - just ask a normal
+question ("review tests/wesendcv/wesendcv.spec.ts for POM compliance") and Copilot loads the matching
+skill automatically.
+
+**Response archive**: every chatmode saves a timestamped copy of its full response to
+`docs/chatmode-responses/<chatmode>-<topic>-<YYYYMMDDTHHMMSSZ>.md` via
+`src/core/tools/save-chatmode-response.js` (`npm run chatmode:save` runs the script directly), so a plan
+or diagnosis survives after the chat session ends and revisions don't overwrite history.
+
+**MCP server** (for fully programmatic agent access, no VS Code UI): `npm run mcp:server` starts
+`mcp/mcp-server.ts` (stdio transport, `@modelcontextprotocol/sdk`) exposing `run_playwright_test`,
+`run_all_tests`, and `get_test_report` as callable tools. Point an MCP client (Claude Desktop, Claude
+Code, VS Code) at `{ "command": "npx", "args": ["tsx", "mcp/mcp-server.ts"], "cwd": "<repo path>" }`.
+
+See [docs/ai-agents.md](docs/ai-agents.md) for per-agent walkthroughs,
+[docs/common-workflows.md](docs/common-workflows.md) for multi-agent workflows end to end, and
+[docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) for a capability-by-task breakdown.
 
 ---
 
 ## Reporting & Logging
 | Report Type | Location/Command |
 |-------------|-------------------|
-| Playwright HTML | `reports/playwright-report/`, open with `npx playwright show-report reports/playwright-report` |
-| Allure | Generate: `npm run allure:generate`, Open: `npm run allure:open`, Serve: `npm run allure:serve` |
+| Playwright HTML | `reports/html/`, open with `npx playwright show-report reports/html` (screenshot/video/trace attached automatically on failure, plus the last 50 Winston log lines) |
+| Allure | `npm run allurereport` (generate + open in one step), or individually: `npm run allure:generate`, `npm run allure:open`, `npm run allure:serve` - drill into a test's **Test body** tab for the `AllureUtils.step` timeline |
 | JUnit | `reports/junit.xml` |
 | JSON | `reports/test-results.json` |
+| Test artifacts | `reports/test-results/` (Playwright's own per-test screenshots/videos/traces on failure) |
+| Visual regression | `reports/visual/{baseline,actual,diff}/<project>/` - namespaced per browser project so chromium/firefox/webkit/mobile never compare against each other's screenshots |
 | Logs | `reports/logs/app-<date>.log` (info+) and `reports/logs/error.log` (errors only) - same folder as Playwright traces |
 
 ---
@@ -362,29 +429,34 @@ Components are reusable UI patterns across pages!
 ## Coding Standards
 | Rule | Details |
 |------|---------|
-| No Duplication | All Playwright actions go through `BasePage` |
-| No Assertions in Pages | Assertions only in tests or `CustomAssertions` |
-| No Hardcoded Values | Use `config/` or `src/test-data/constants/` |
-| No Manual Instantiation | Use fixtures to get dependencies in tests |
+| No Duplication | All raw Playwright actions go through `BasePage` (`src/core/ui/base/BasePage.ts`) or a shared `src/core/shared/utils/` helper - never reimplement one, and never let two utils solve the same problem (see the code-review skill's Duplication check) |
+| No Assertions in Pages | Assertions only in the test itself or `ValidationHelpers` (`src/core/shared/validations/ValidationHelpers.ts`) - zero `expect(...)` in `src/pages/` or `src/core/ui/components/` |
+| No Hardcoded Values | URLs/credentials/timeouts via the `Config` singleton (`src/core/config/Config.ts`) or `src/core/config/constants/`; test data via `src/core/data/testdata/` or `src/core/data/builders/` (e.g. `UserBuilder`) |
+| No Manual Instantiation | Use fixtures (`src/core/runtime/fixtures/fixtures.ts`) to get pages/services in tests - never `new LoginPage(page)` inline |
 | Locator Strategy | Prefer `getByRole` > `getByLabel` > `getByPlaceholder` > `getByText` > `getByTestId`; avoid CSS; *never* use XPath |
-| No `console.log` | Use `Logger.info/debug/warn/error` instead |
+| No `console.log` | Use `Logger.info/debug/warn/error` (`src/core/config/logger/Logger.ts`) instead |
+| Allure Evidence | Report through `AllureUtils` (`src/core/shared/utils/AllureUtils.ts`) - named steps + attached screenshots on every run, not just failures |
 
 ---
 
 ## CI/CD
-- **PR Checks**: `.github/workflows/pr-checks.yml` - runs lint + sanity tests on every PR
-- **Regression**: `.github/workflows/regression.yml` - scheduled full regression runs
-- **Artifacts**: the whole `reports/` folder (results, HTML/Allure/JUnit output, screenshots, videos, logs+traces) is uploaded as a single artifact
+- **`.github/workflows/ci.yml`** ("Playwright Tests") - runs on push/PR to `main`/`master`, plus manual
+  `workflow_dispatch` with `environment` (qa/stage/uat/prod) and `project` (chromium/firefox/webkit/all)
+  inputs
+- **Steps**: `npm ci` → `npm run lint` → `npm run typecheck` → `npm run install:browsers` →
+  `npm test` (scoped to the chosen `--project` if one was picked) → `npm run allure:generate`
+- **Artifacts**: the whole `reports/` folder (HTML/Allure/JUnit/JSON output, screenshots, videos,
+  logs+traces) is uploaded as a single `playwright-report` artifact, retained 30 days
 
 ---
 
 ## Troubleshooting
 | Issue | Solution |
 |-------|----------|
-| Failing Test | Check `reports/playwright-report/` first (screenshots/videos/traces + logs) |
-| Debugging | Use `npm run test:debug` or `npm run test:ui` |
+| Failing Test | Check `reports/html` first (screenshots/videos/traces + last 50 log lines), then `npm run allurereport` for the step-by-step timeline if the spec uses `AllureUtils` |
+| Debugging | Use `npm run test:debug` or `npm run test:ui`, or ask the `@healer` chatmode |
 | Browser Issues | `npm run install:browsers` |
-| AI Agents | See [docs/ai-agents.md](file:///Users/sureshbabuisreal/Documents/PersonalGithub/Playwright_aI/docs/ai-agents.md) for planner/generator/healer/reviewer chatmodes |
+| AI Agents | See [AI Agents, Chatmodes & Skills](#ai-agents-chatmodes--skills) above, or [docs/ai-agents.md](docs/ai-agents.md) |
 
 ---
 

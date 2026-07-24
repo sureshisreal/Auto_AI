@@ -1,10 +1,7 @@
 #!/usr/bin/env node
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from '@modelcontextprotocol/sdk/types.js';
+import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -77,7 +74,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       let cmd = `npx playwright test ${testFile}`;
       if (project) cmd += ` --project=${project}`;
       if (headed) cmd += ' --headed';
-      
+
       const { stdout, stderr } = await execAsync(cmd);
       return {
         content: [
@@ -102,7 +99,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
 
     if (name === 'get_test_report') {
-      const { stdout } = await execAsync('ls -la playwright-report/ || echo "No report found"');
+      const { stdout } = await execAsync('ls -la reports/html/ || echo "No report found"');
       return {
         content: [
           {

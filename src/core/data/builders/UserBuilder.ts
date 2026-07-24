@@ -1,53 +1,42 @@
-import { RandomDataUtils } from '../../shared/utils/RandomDataUtils';
-
-interface UserData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  role: string;
-}
+import { faker } from '@faker-js/faker';
+import { User } from '../../data/models/User.model';
+import { UserRole } from '../../data/enums/UserRole';
 
 export class UserBuilder {
-  private userData: Partial<UserData> = {};
-
-  constructor() {
-    // Set default values
-    this.userData = {
-      firstName: RandomDataUtils.getRandomFirstName(),
-      lastName: RandomDataUtils.getRandomLastName(),
-      email: RandomDataUtils.getRandomEmail(),
-      password: RandomDataUtils.getRandomPassword(),
-      role: 'standard'
-    };
-  }
+  private user: User = {
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+    role: UserRole.STANDARD,
+  };
 
   public withFirstName(firstName: string): UserBuilder {
-    this.userData.firstName = firstName;
+    this.user.firstName = firstName;
     return this;
   }
 
   public withLastName(lastName: string): UserBuilder {
-    this.userData.lastName = lastName;
+    this.user.lastName = lastName;
     return this;
   }
 
   public withEmail(email: string): UserBuilder {
-    this.userData.email = email;
+    this.user.email = email;
     return this;
   }
 
   public withPassword(password: string): UserBuilder {
-    this.userData.password = password;
+    this.user.password = password;
     return this;
   }
 
-  public withRole(role: string): UserBuilder {
-    this.userData.role = role;
+  public withRole(role: UserRole): UserBuilder {
+    this.user.role = role;
     return this;
   }
 
-  public build(): UserData {
-    return this.userData as UserData;
+  public build(): User {
+    return this.user;
   }
 }

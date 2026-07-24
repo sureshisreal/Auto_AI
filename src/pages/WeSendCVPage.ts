@@ -16,7 +16,7 @@ export class WeSendCVPage extends BasePage {
     this.submitButton = this.page.getByRole('button', { name: /submit|login/i });
     // wesendcv.com renders more than one <nav> (visible main menu + a hidden
     // dropdown nav), so scope to the first one to keep this a strict-mode-safe locator.
-    this.navigationMenu = this.page.locator('nav').first();
+    this.navigationMenu = this.page.locator('xpath://nav').first();
   }
 
   public getNavigationMenu(): Locator {
